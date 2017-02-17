@@ -39,4 +39,7 @@ dependencies {
     // rxjava
     compile 'io.reactivex:rxjava:1.1.3'
     compile 'io.reactivex:rxandroid:1.1.0'
+
+    // java stream bacport
+    compile 'com.annimon:stream:1.1.0'
 }
