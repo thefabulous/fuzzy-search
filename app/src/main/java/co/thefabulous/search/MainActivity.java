@@ -4,19 +4,26 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import co.thefabulous.search.commons.TextWatcherAdapter;
 import co.thefabulous.search.search.AutocompleteEngine;
+import co.thefabulous.search.simplesearch.fuzzywuzzy.HabitsSearchEngine;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = MainActivity.class.getCanonicalName();
+
     private ListView listview;
     private ArrayList<Habit> habits;
-    private AutocompleteEngine<Habit> engine;
+    private HabitsSearchEngine engine;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,38 +46,30 @@ public class MainActivity extends AppCompatActivity {
         habits.add(new Habit("Celebrate!", "Celebrate your victories "));
         habits.add(new Habit("Power Nap", "Wake up refreshed!"));
 
-        listview.setAdapter(new HabitAdapter(this, habits));
-
-        engine = new AutocompleteEngine.Builder<Habit>()
-                .setIndex(new SampleAdapter())
-                .setAnalyzer(new SampleAnalyzer())
-                .build();
-        engine.addAll(habits);
+        engine = new HabitsSearchEngine();
+        engine.setHabits(habits);
 
         EditText searchEditText = (EditText) findViewById(R.id.search_edit_text);
-        searchEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
+        searchEditText.addTextChangedListener(new TextWatcherAdapter() {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 search(charSequence.toString());
             }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
         });
+
+        search("");
     }
 
     private void search(String s) {
-        if (s == null || s.length() == 0) {
-            listview.setAdapter(new HabitAdapter(this, habits));
-        } else {
-            listview.setAdapter(new HabitAdapter(this, engine.search(s)));
+        if (s != null) {
+            engine.search(s)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            habits -> listview.setAdapter(new HabitAdapter(this, habits)),
+                            error -> Log.e(TAG, error.getMessage())
+                    );
         }
     }
+
 }
