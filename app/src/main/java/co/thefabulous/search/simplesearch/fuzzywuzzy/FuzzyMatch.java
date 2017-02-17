@@ -1,28 +1,23 @@
 package co.thefabulous.search.simplesearch.fuzzywuzzy;
 
-import android.util.Log;
-
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeSet;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
-public final class FuzzyMatch {
+import org.apache.commons.lang3.StringUtils;
 
-    private static final String TAG = FuzzyMatch.class.getSimpleName();
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
+
+public final class FuzzyMatch {
 
     private FuzzyMatch() {}
 
-    public static SearchResult search(String s1, String s2, boolean debug) {
+    public static SearchResult search(String s1, String s2) {
 
         if (s1.length() >= s2.length()) {
             // We need to swap s1 and s2
@@ -32,7 +27,6 @@ public final class FuzzyMatch {
         }
 
         // Get alpha numeric characters
-
         s1 = processString(s1);
         s2 = processString(s2);
 
@@ -57,12 +51,6 @@ public final class FuzzyMatch {
 
         TreeSet<String> sortedIntersection = Sets.newTreeSet(intersection);
 
-        if (debug) {
-            System.out.print("Sorted intersection --> ");
-            for (String s:sortedIntersection)
-                System.out.print(s + " ");
-        }
-
         // Find out difference of sets set1 and intersection of set1,set2
 
         SetView<String> restOfSet1 = Sets.symmetricDifference(set1, intersection);
@@ -73,16 +61,6 @@ public final class FuzzyMatch {
         SetView<String> restOfSet2 = Sets.symmetricDifference(set2, intersection);
 
         TreeSet<String> sortedRestOfSet2 = Sets.newTreeSet(restOfSet2);
-
-        if (debug) {
-            System.out.print("\nSorted rest of 1 --> ");
-            for (String s:sortedRestOfSet1)
-                System.out.print(s + " ");
-
-            System.out.print("\nSorted rest of 2 -->");
-            for (String s:sortedRestOfSet2)
-                System.out.print(s + " ");
-        }
 
         String t0 = ""; // intersection
         String t1 = ""; // set t1 of search query tokens
@@ -105,32 +83,19 @@ public final class FuzzyMatch {
         }
         t2 = t2.trim();
 
-        int amt1 = calculateLevensteinDistance(t0, t1); // distance from intersection to search query
-        int amt2 = calculateLevensteinDistance(t0, t2); // distance from interserctino to original
-        int amt3 = calculateLevensteinDistance(t1, t2); // distance from search query to original
-
-        if (debug) {
-            System.out.println();
-            System.out.println("t0 = " + t0 + " --> " + amt1);
-            System.out.println("t1 = " + t1 + " --> " + amt2);
-            System.out.println("t2 = " + t2 + " --> " + amt3);
-            System.out.println();
-        }
+        int amt1 = calculateLevensteinDistance(t0, t1);
+        int amt2 = calculateLevensteinDistance(t0, t2);
+        int amt3 = calculateLevensteinDistance(t1, t2);
 
         int finalScore = Math.max(Math.max(amt1, amt2), amt3);
 
-        List<String> matches = Lists.newArrayList(intersection);
-        if (debug && matches.size() > 0) {
-            Log.d(TAG, "intersection > 0");
-        }
-
-        return new SearchResult(matches, finalScore);
+        return new SearchResult(Lists.newArrayList(intersection), finalScore);
     }
 
     public static int calculateLevensteinDistance(String s1, String s2) {
         int distance = StringUtils.getLevenshteinDistance(s1, s2);
         double ratio = ((double) distance) / (Math.max(s1.length(), s2.length()));
-        return 100 - new Double(ratio * 100).intValue();
+        return 100 - Double.valueOf(ratio * 100).intValue();
     }
 
     public static String processString(String token) {

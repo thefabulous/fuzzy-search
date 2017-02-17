@@ -25,7 +25,7 @@ public class HabitsSearchEngine {
         return Observable.from(habits)
                 .flatMap(habit -> {
                     final SearchResult searchResult =
-                            FuzzyMatch.search(getTitleWithSubtitle(habit), query, true);
+                            FuzzyMatch.search(getTitleWithSubtitle(habit), query);
                     return Observable.just(
                             new ScoredObject<>(habit,
                                     searchResult.getScore(),
