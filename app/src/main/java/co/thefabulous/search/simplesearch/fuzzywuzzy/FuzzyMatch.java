@@ -66,7 +66,7 @@ public final class FuzzyMatch {
         String t1 = ""; // set t1 of search query tokens
         String t2 = ""; // set t2 of original tokens
 
-        for (String s:sortedIntersection) {
+        for (String s : sortedIntersection) {
             t0 = t0 + " " + s;
         }
         t0 = t0.trim();

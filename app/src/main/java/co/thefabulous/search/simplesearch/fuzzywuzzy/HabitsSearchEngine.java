@@ -1,5 +1,7 @@
 package co.thefabulous.search.simplesearch.fuzzywuzzy;
 
+import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -11,7 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class HabitsSearchEngine {
 
-    private static final double SCORE_TRESHOLD = 15;
+    private static final double SCORE_TRESHOLD = 0;
 
     private final List<Habit> habits = new ArrayList<>();
 
@@ -25,13 +27,19 @@ public class HabitsSearchEngine {
 
         return Observable.from(habits)
                 .flatMap(habit -> {
-                    final SearchResult searchResult =
-                            FuzzyMatch.search(getTitleWithSubtitle(habit), query);
-                    return Observable.just(
-                            new ScoredObject<>(habit,
-                                    searchResult.getScore(),
-                                    searchResult.getMatchingWords()))
-                            ;
+                    final SearchResult searchResultTitle =
+                            FuzzyMatch.search(habit.getTitle(), query);
+
+                    final SearchResult searchResultSubTitle =
+                            FuzzyMatch.search(habit.getSubtitle(), query);
+
+                    List<String> matchingWords = Lists.newArrayList(searchResultTitle.getMatchingWords());
+                    matchingWords.addAll(searchResultSubTitle.getMatchingWords());
+
+                    SearchResult result = new SearchResult(matchingWords, searchResultTitle.getScore() + searchResultSubTitle.getScore());
+
+                    ScoredObject<Habit> scoredObject = new ScoredObject<>(habit, result.getScore(), result.getMatchingWords());
+                    return Observable.just(scoredObject);
                 })
                 .filter(habitScoredObject -> habitScoredObject.getScore() > SCORE_TRESHOLD)
                 .toSortedList((habitWithScore1, habitWithScore2) ->
