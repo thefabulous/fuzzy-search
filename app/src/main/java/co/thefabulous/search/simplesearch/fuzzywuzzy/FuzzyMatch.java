@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
