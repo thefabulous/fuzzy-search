@@ -11,7 +11,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class HabitsSearchEngine {
 
-    private static final double SCORE_TRESHOLD = 0;
+    private static final double SCORE_TRESHOLD = 15;
+
     private final List<Habit> habits = new ArrayList<>();
 
     public void setHabits(Collection<Habit> habits) {
