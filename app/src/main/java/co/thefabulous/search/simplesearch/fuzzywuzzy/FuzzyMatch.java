@@ -1,8 +1,9 @@
 package co.thefabulous.search.simplesearch.fuzzywuzzy;
 
+import android.util.Log;
+
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,10 +12,13 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
 public final class FuzzyMatch {
+
+    private static final String TAG = FuzzyMatch.class.getSimpleName();
 
     private FuzzyMatch() {}
 
@@ -29,8 +33,8 @@ public final class FuzzyMatch {
 
         // Get alpha numeric characters
 
-        s1 = escapeString(s1);
-        s2 = escapeString(s2);
+        s1 = processString(s1);
+        s2 = processString(s2);
 
         s1 = s1.toLowerCase();
         s2 = s2.toLowerCase();
@@ -115,8 +119,10 @@ public final class FuzzyMatch {
 
         int finalScore = Math.max(Math.max(amt1, amt2), amt3);
 
-        final List<String> matches = new ArrayList<>();
-
+        List<String> matches = Lists.newArrayList(intersection);
+        if (debug && matches.size() > 0) {
+            Log.d(TAG, "intersection > 0");
+        }
 
         return new SearchResult(matches, finalScore);
     }
@@ -127,7 +133,7 @@ public final class FuzzyMatch {
         return 100 - new Double(ratio * 100).intValue();
     }
 
-    public static String escapeString(String token) {
+    public static String processString(String token) {
 
         StringBuffer s = new StringBuffer(token.length());
 
