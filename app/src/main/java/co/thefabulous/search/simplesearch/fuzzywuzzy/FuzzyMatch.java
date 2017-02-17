@@ -9,9 +9,13 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class FuzzyMatch {
 
@@ -89,7 +93,7 @@ public final class FuzzyMatch {
 
         int finalScore = Math.max(Math.max(amt1, amt2), amt3);
 
-        return new SearchResult(Lists.newArrayList(intersection), finalScore);
+        return new SearchResult(getHighlightString(set2, set1), finalScore);
     }
 
     public static int calculateLevensteinDistance(String s1, String s2) {
@@ -134,6 +138,32 @@ public final class FuzzyMatch {
 
         token = s.toString();
         return token;
+    }
+
+    private static List<String> getHighlightString(Set<String> originalTokens, Set<String> queries) {
+        final Set<String> highlights = new HashSet<>();
+
+        for (String q : queries) {
+            if (q == null || q.length() < 2) {
+                break;
+            }
+            for (String o : originalTokens) {
+                if (o == null || o.length() < 2) {
+                    break;
+                }
+                Matcher matcher =
+                        Pattern.compile(getRegexpForQueryToken(q)).matcher(o);
+
+                while (matcher.find()) {
+                    highlights.add(matcher.group());
+                }
+            }
+        }
+        return Lists.newArrayList(highlights);
+    }
+
+    private static String getRegexpForQueryToken(String q) {
+        return String.format("%s.*%s", q.charAt(0), q.charAt(q.length() - 1));
     }
 
 }
