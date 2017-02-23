@@ -128,7 +128,7 @@ public class Aggregator<T> {
     public List<T> values() {
         List<ScoredObject<T>> list = new ArrayList<>();
         for (Entry<T, Double> entry : scores.entrySet()) {
-            list.add(new ScoredObject<>(entry.getKey(), entry.getValue()));
+            list.add(new ScoredObject<>(entry.getKey(), entry.getValue(), null));
         }
         Collections.sort(list, comparator);
         List<T> result = new ArrayList<>();

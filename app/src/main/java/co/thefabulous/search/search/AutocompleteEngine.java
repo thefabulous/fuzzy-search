@@ -191,7 +191,7 @@ public final class AutocompleteEngine<T extends Indexable> implements Engine<T> 
                 public Collection<ScoredObject<T>> get(String token) {
                     List<ScoredObject<T>> result = new LinkedList<>();
                     for (T element : index.getAll(token)) {
-                        result.add(new ScoredObject<>(element, 0));
+                        result.add(new ScoredObject<>(element, 0, null));
                     }
                     return result;
                 }

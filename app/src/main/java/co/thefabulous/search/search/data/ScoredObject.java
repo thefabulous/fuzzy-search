@@ -1,5 +1,8 @@
 package co.thefabulous.search.search.data;
 
+import android.support.v4.util.Pair;
+
+import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -12,13 +15,15 @@ import static co.thefabulous.search.search.common.Precondition.checkPointer;
 public class ScoredObject<T> implements Comparable<ScoredObject> {
     private final T object;
     private final Double score;
+    private final List<Pair<Integer, Integer>> matchedIndices;
 
     /**
      * Constructs a new {@link ScoredObject}.
      */
-    public ScoredObject(@Nullable T object, double score) {
+    public ScoredObject(@Nullable T object, double score, List<Pair<Integer, Integer>> matchedIndices) {
         this.object = object;
         this.score = score;
+        this.matchedIndices = matchedIndices;
     }
 
     /**
@@ -35,6 +40,10 @@ public class ScoredObject<T> implements Comparable<ScoredObject> {
         return score;
     }
 
+    public List<Pair<Integer, Integer>> getMatchedIndices() {
+        return matchedIndices;
+    }
+
     @Override
     public int compareTo(ScoredObject other) {
         checkPointer(other != null);
@@ -43,7 +52,9 @@ public class ScoredObject<T> implements Comparable<ScoredObject> {
 
     private boolean equals(ScoredObject<?> other) {
         assert other != null;
-        return Objects.equals(object, other.object) && Objects.equals(score, other.score);
+        return Objects.equals(object, other.object)
+                && Objects.equals(score, other.score)
+                && Objects.equals(matchedIndices, other.matchedIndices);
     }
 
     @Override
@@ -59,6 +70,6 @@ public class ScoredObject<T> implements Comparable<ScoredObject> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(object, score);
+        return Objects.hash(object, score, matchedIndices);
     }
 }
