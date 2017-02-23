@@ -12,7 +12,7 @@ import co.thefabulous.search.search.data.Indexable;
  */
 public class FuseEngine<T extends Indexable> implements Engine<T> {
 
-    private final Options DEFAULT_OPTIONS = Options.builder()
+    public static final Options DEFAULT_OPTIONS = Options.builder()
             .id(null)
             .caseSensitive(false)
             .include(new ArrayList<String>())
@@ -21,7 +21,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             .sortFunction(new Options.SortFunction() {
                 @Override
                 public int sort(Options.SearchResult a, Options.SearchResult b) {
-                    return a.score() - b.score();
+                    return Double.compare(a.score(), b.score());
                 }
             })
             .getFunction(new Options.GetFunction() {
@@ -38,6 +38,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             .minimumCharLength(1)
             .findAllMatches(false)
             .build();
+
     @Override
     public boolean addAll(Collection<T> dataSet) {
         return false;
