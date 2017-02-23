@@ -22,8 +22,12 @@ public abstract class Options {
         List<Pair<Integer, Integer>> matchedIndices();
     }
 
+    public interface SearchFunction{
+        SearchResult search(String text);
+    }
+
     public interface SearchFunctionFactory{
-        SearchResult searchFn(String pattern, Options options);
+        SearchFunction getSearchFunction(String pattern, Options options);
     }
 
     interface SortFunction {
