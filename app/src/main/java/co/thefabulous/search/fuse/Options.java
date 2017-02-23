@@ -4,7 +4,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -318,10 +317,14 @@ public class Options {
         double score();
 
         List<Pair<Integer, Integer>> matchedIndices();
+
+//        String key();
     }
 
     public interface SearchFunction {
         SearchResult search(String text);
+
+        String pattern();
     }
 
     public interface SearchFunctionFactory {
@@ -329,7 +332,7 @@ public class Options {
     }
 
     interface SortFunction {
-        int sort(SearchResult a, SearchResult b);
+        double sort(SearchResult a, SearchResult b);
     }
 
     interface GetFunction {
