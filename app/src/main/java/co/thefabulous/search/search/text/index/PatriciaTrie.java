@@ -272,7 +272,7 @@ public class PatriciaTrie<V> extends AbstractIndex<V> implements FuzzyIndex<V> {
         assert matcher != null;
         Set<ScoredObject<V>> result = new HashSet<>();
         for (V value : node.values()) {
-            result.add(new ScoredObject<>(value, matcher.getScore(), matchedIndices));
+            result.add(new ScoredObject<>(value, matcher.getScore(), null));
         }
         for (Entry<String, Node> entry : node.childEntries()) {
             result.addAll(values(entry.getValue(), matcher.step(entry.getKey())));
