@@ -112,22 +112,19 @@ public class BitapSearcher implements Options.SearchFunction {
             String regEx = sb.toString();
             Pattern p = Pattern.compile(regEx);
             Matcher matcher = p.matcher(text);
-            isMatched = matcher.find();
 
-            ArrayList<Pair<Integer, Integer>> matchedIndices = null;
-            if (isMatched) {
-                matchedIndices = new ArrayList<>();
-                for (i = 0, matchesLen = matcher.groupCount(); i < matchesLen; i++) {
-                    match = matcher.group(i);
-                    matchedIndices.add(new Pair<>(text.indexOf(match), match.length() - 1));
-                }
+            ArrayList<Pair<Integer, Integer>> matchedIndices = new ArrayList<>();
+            while (matcher.find()) {
+                match = matcher.group(0);
+                matchedIndices.add(new Pair<>(text.indexOf(match), text.indexOf(match) + match.length() - 1));
             }
 
             // TODO: revisit this score
+            isMatched = !matchedIndices.isEmpty();
             return new BitapSearchResult.Builder()
                     .isMatch(isMatched)
                     .score(isMatched ? 0.5 : 1)
-                    .matchedIndices(matchedIndices)
+                    .matchedIndices(isMatched ? matchedIndices : null)
                     .build();
         }
 
@@ -254,7 +251,8 @@ public class BitapSearcher implements Options.SearchFunction {
 
     /**
      * Compute and return the score for a match with e errors and x location.
-     * @param errors Number of errors in match.
+     *
+     * @param errors   Number of errors in match.
      * @param location Location of match.
      * @return Overall score for match (0.0 = good, 1.0 = bad).
      */
