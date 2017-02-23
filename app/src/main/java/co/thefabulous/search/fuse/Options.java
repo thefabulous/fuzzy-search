@@ -1,6 +1,7 @@
 package co.thefabulous.search.fuse;
 
 import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 
 import com.google.auto.value.AutoValue;
 
@@ -13,18 +14,16 @@ import java.util.List;
 @AutoValue
 public abstract class Options {
 
-    interface SearchResult {
+    public interface SearchResult {
         boolean isMatch();
 
-        int score();
+        double score();
+
+        List<Pair<Integer, Integer>> matchedIndices();
     }
 
-    interface SearchFunction{
-
-    }
-
-    interface SearchFunctionFactory{
-        SearchFunction searchFn(String pattern, Options options);
+    public interface SearchFunctionFactory{
+        SearchResult searchFn(String pattern, Options options);
     }
 
     interface SortFunction {
