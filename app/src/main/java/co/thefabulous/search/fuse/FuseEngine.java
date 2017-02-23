@@ -1,6 +1,7 @@
 package co.thefabulous.search.fuse;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
@@ -56,10 +57,10 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     @NonNull
     private final Options options;
     private Collection<T> dataSet;
-    private List<Options.SearchFunction> tokenSearchers;
-    private SearchFunction fullSearcher;
-    private List<ExistingResult> results;
-    private Map<Integer, ExistingResult> resultMap;
+    @VisibleForTesting List<Options.SearchFunction> tokenSearchers;
+    @VisibleForTesting SearchFunction fullSearcher;
+    @VisibleForTesting List<ExistingResult> results;
+    @VisibleForTesting Map<Integer, ExistingResult> resultMap;
     private Map<String, Double> keyMap;
 
     public FuseEngine(@NonNull Options options) {
@@ -99,7 +100,8 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         return format();
     }
 
-    private void prepareSearchers(String pattern) {
+    @VisibleForTesting
+    void prepareSearchers(String pattern) {
         tokenSearchers = new ArrayList<>();
         if (options.tokenize) {
             final String[] tokens = pattern.split(options.tokenSeparator);
@@ -113,13 +115,14 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     private void startSearch() {
         keyMap = new ArrayMap<>();
 
+        int i = 0;
         for (T t : dataSet) {
             final List<String> fields = t.getFields();
-            for (int i = 0; i < fields.size(); i++) {
-                analyze("", fields.get(i), t, i);
+            for (int j = 0; j < fields.size(); j++) {
+                analyze("", fields.get(j), t, i);
             }
+            i++;
         }
-
 
 //        // Check the first item in the list, if it's a string, then we assume
 //        // that every item in the list is also a string, and thus it's a flattened array.
@@ -156,13 +159,13 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
 //        }
     }
 
-    private void analyze(String key, List<String> texts, Object entity, int index) {
-        for (String text : texts) {
-            analyze(key, text, entity, index);
-        }
-    }
+//    private void analyze(String key, List<String> texts, Object entity, int index) {
+//        for (String text : texts) {
+//            analyze(key, text, entity, index);
+//        }
+//    }
 
-    private void analyze(final String key, String text, Object entity, int index) {
+    @VisibleForTesting void analyze(final String key, String text, Object entity, int index) {
         if (TextUtils.isEmpty(text)) {
             return;
         }
@@ -203,7 +206,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                     numTextMatches++;
                 }
 
-//                    log("Token scores: %s", termScores); //// TODO: 23.02.2017 log this array
+//               log("Token scores: %s", termScores); //// TODO: 23.02.2017 log this array
 
                 averageScore = scores.get(0);
                 int scoresLen = scores.size();
@@ -214,75 +217,51 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
 
                 log("Token scores average: %f", averageScore);
             }
+        }
 
-            final SearchResult mainSearchResult = fullSearcher.search(text);
-            log("Full text score: %f", mainSearchResult.score());
+        final SearchResult mainSearchResult = fullSearcher.search(text);
+        log("Full text score: %f", mainSearchResult.score());
 
-            final double finalScore = (averageScore != null) ?
-                    (mainSearchResult.score() + averageScore) / 2.0 :
-                    mainSearchResult.score();
+        final double finalScore = (averageScore != null) ?
+                (mainSearchResult.score() + averageScore) / 2.0 :
+                mainSearchResult.score();
 
-            log("Score average %f", finalScore);
+        log("Score average %f", finalScore);
 
-            boolean checkTextMatches = !(this.options.tokenize && this.options.matchAllTokens) ||
-                    numTextMatches >= this.tokenSearchers.size();
+        boolean checkTextMatches = !(this.options.tokenize && this.options.matchAllTokens) ||
+                numTextMatches >= this.tokenSearchers.size();
 
-            log("Check Matches %b", checkTextMatches);
+        log("Check Matches %b", checkTextMatches);
 
-            // If a match is found, add the item to <rawResults>, including its score
-            if ((exists || mainSearchResult.isMatch()) && checkTextMatches) {
-                // Check if the item already exists in our results
-                ExistingResult existingResult = resultMap.get(index);
+        // If a match is found, add the item to <rawResults>, including its score
+        if ((exists || mainSearchResult.isMatch()) && checkTextMatches) {
+            // Check if the item already exists in our results
+            ExistingResult existingResult = resultMap.get(index);
 
-                if (existingResult != null) {
-                    // Use the lowest score
-                    // existingResult.score, bitapResult.score
-                    existingResult.output.add(new SearchResult() {
-                        @Override
-                        public boolean isMatch() {
-                            return true;
-                        }
-
-                        @Override
-                        public double score() {
-                            return finalScore;
-                        }
-
-                        @Override
-                        public List<Pair<Integer, Integer>> matchedIndices() {
-                            return mainSearchResult.matchedIndices();
-                        }
-
-//                        @Override
-//                        public String key() {
-//                            return key;
-//                        }
-                    });
-                } else {
-                    // Add it to the raw result list
-                    resultMap.put(index, new ExistingResult(entity, new SearchResult() {
-                        @Override
-                        public boolean isMatch() {
-                            return true;
-                        }
-
-                        @Override
-                        public double score() {
-                            return finalScore;
-                        }
-
-                        @Override
-                        public List<Pair<Integer, Integer>> matchedIndices() {
-                            return mainSearchResult.matchedIndices();
-                        }
-
-//                        @Override
-//                        public String key() {
-//                            return key;
-//                        }
-                    }));
-                    results.add(resultMap.get(index));
+            final SearchResult searchResult = new SearchResult() {
+                @Override
+                public boolean isMatch() {
+                    return true;
                 }
+
+                @Override
+                public double score() {
+                    return finalScore;
+                }
+
+                @Override
+                public List<Pair<Integer, Integer>> matchedIndices() {
+                    return mainSearchResult.matchedIndices();
+                }
+            };
+            if (existingResult != null) {
+                // Use the lowest score
+                // existingResult.score, bitapResult.score
+                existingResult.output.add(searchResult);
+            } else {
+                // Add it to the raw result list
+                resultMap.put(index, new ExistingResult(entity, searchResult));
+                results.add(resultMap.get(index));
             }
         }
     }

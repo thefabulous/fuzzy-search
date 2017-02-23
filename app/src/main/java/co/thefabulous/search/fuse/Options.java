@@ -59,6 +59,10 @@ public class Options {
         return new Builder();
     }
 
+    public static Builder builder(Options options) {
+        return new Builder(options);
+    }
+
     @Override
     public String toString() {
         return "Options{"
