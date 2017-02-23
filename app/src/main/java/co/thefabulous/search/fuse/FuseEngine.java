@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import co.thefabulous.search.bitap.BitapFactory;
 import co.thefabulous.search.search.data.Indexable;
 
 import static co.thefabulous.search.fuse.Options.GetFunction;
@@ -30,7 +31,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             .caseSensitive(false)
             .include(new ArrayList<String>())
             .shouldSort(true)
-            .searchFunction(null) //// TODO: 23.02.2017 set BitapSearcher
+            .searchFunction(new BitapFactory()) //// TODO: 23.02.2017 set BitapSearcher
             .sortFunction(new SortFunction() {
                 @Override
                 public int sort(Options.SearchResult a, Options.SearchResult b) {
@@ -47,7 +48,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             .verbose(false)
             .tokenize(false)
             .matchAllTokens(false)
-            .tokenSeparator("/ +/g") //// TODO: 23.02.2017 check if correct
+            .tokenSeparator("\\s+") //// TODO: 23.02.2017 check if correct
             .minimumCharLength(1)
             .findAllMatches(false)
             .build();
@@ -62,7 +63,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     private Map<String, Double> keyMap;
 
     public FuseEngine(@NonNull Options options) {
-        checkArgument(options == null, "options cannot be null");
+        checkArgument(options != null, "options cannot be null");
         this.options = options;
         mergeOptionsWithDefault(options);
     }
