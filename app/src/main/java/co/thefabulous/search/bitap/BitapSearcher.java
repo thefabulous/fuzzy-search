@@ -248,12 +248,10 @@ public class BitapSearcher implements Options.SearchFunction {
     }
 
     /**
-     * Compute and return the score for a match with `e` errors and `x` location.
-     *
-     * @param {number} errors Number of errors in match.
-     * @param {number} location Location of match.
-     * @return {number} Overall score for match (0.0 = good, 1.0 = bad).
-     * @private
+     * Compute and return the score for a match with e errors and x location.
+     * @param errors Number of errors in match.
+     * @param location Location of match.
+     * @return Overall score for match (0.0 = good, 1.0 = bad).
      */
     private double bitapScore(double errors, int location) {
         float accuracy = (float) (errors / this.patternLen);
