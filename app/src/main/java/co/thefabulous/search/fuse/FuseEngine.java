@@ -17,7 +17,6 @@ import static co.thefabulous.search.fuse.Options.GetFunction;
 import static co.thefabulous.search.fuse.Options.SearchFunction;
 import static co.thefabulous.search.fuse.Options.SearchResult;
 import static co.thefabulous.search.fuse.Options.SortFunction;
-import static co.thefabulous.search.fuse.Options.builder;
 import static co.thefabulous.search.search.common.Precondition.checkArgument;
 
 /**
@@ -56,7 +55,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     @NonNull
     private final Options options;
     private Collection<T> dataSet;
-    //    private List<Object> list;
     private List<Options.SearchFunction> tokenSearchers;
     private SearchFunction fullSearcher;
     private List<ExistingResult> results;
@@ -64,14 +62,12 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     private Map<String, Double> keyMap;
 
     public FuseEngine(@NonNull Options options) {
-        //noinspection ConstantConditions
         checkArgument(options == null, "options cannot be null");
         this.options = options;
         mergeOptionsWithDefault(options);
     }
 
     private void mergeOptionsWithDefault(Options options) {
-
         //// TODO: 23.02.2017
     }
 
@@ -83,7 +79,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
 
     @Override
     public boolean addAll(Collection<T> dataSet) {
-//        this.dataSet = dataSet; // TODO: 23.02.2017 temp!
+        this.dataSet = dataSet;
         return true;
     }
 

@@ -317,8 +317,6 @@ public class Options {
         double score();
 
         List<Pair<Integer, Integer>> matchedIndices();
-
-//        String key();
     }
 
     public interface SearchFunction {
@@ -332,7 +330,7 @@ public class Options {
     }
 
     interface SortFunction {
-        double sort(SearchResult a, SearchResult b);
+        int sort(SearchResult a, SearchResult b);
     }
 
     interface GetFunction {
