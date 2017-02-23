@@ -85,7 +85,6 @@ public class BitapSearcher implements Options.SearchFunction {
         ArrayList<Integer> locations;
         boolean isMatched;
         int[] matchMask;
-        ArrayList<Pair<Integer, Integer>> matchedIndices = new ArrayList<>();
         int matchesLen;
         String match;
 
@@ -115,6 +114,7 @@ public class BitapSearcher implements Options.SearchFunction {
             Matcher matcher = p.matcher(text);
             isMatched = matcher.find();
 
+            ArrayList<Pair<Integer, Integer>> matchedIndices = null;
             if (isMatched) {
                 matchedIndices = new ArrayList<>();
                 for (i = 0, matchesLen = matcher.groupCount(); i < matchesLen; i++) {
@@ -238,13 +238,12 @@ public class BitapSearcher implements Options.SearchFunction {
             lastBitArr = bitArr;
         }
 
-        matchedIndices = this.getMatchedIndices(matchMask);
-
         // Count exact matches (those with a score of 0) to be "almost" exact
+        boolean isMatch = bestLoc >= 0;
         return new BitapSearchResult.Builder()
-                .isMatch(bestLoc >= 0)
+                .isMatch(isMatch)
                 .score(score == 0 ? 0.001 : score)
-                .matchedIndices(matchedIndices)
+                .matchedIndices(isMatch ? getMatchedIndices(matchMask) : null)
                 .build();
     }
 
