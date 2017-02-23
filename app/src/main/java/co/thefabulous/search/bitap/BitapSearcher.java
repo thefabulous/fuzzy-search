@@ -247,6 +247,11 @@ public class BitapSearcher implements Options.SearchFunction {
                 .build();
     }
 
+    @Override
+    public String pattern() {
+        return pattern;
+    }
+
     /**
      * Compute and return the score for a match with e errors and x location.
      * @param errors Number of errors in match.
