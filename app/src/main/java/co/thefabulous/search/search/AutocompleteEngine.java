@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.Nullable;
 
+import co.thefabulous.search.fuse.Engine;
 import co.thefabulous.search.search.data.Indexable;
 import co.thefabulous.search.search.data.ScoredObject;
 import co.thefabulous.search.search.text.analyze.Analyzer;
@@ -24,7 +25,7 @@ import static co.thefabulous.search.search.common.Precondition.checkPointer;
 /**
  * Facade for indexing and searching {@link Indexable} elements.
  */
-public final class AutocompleteEngine<T extends Indexable> {
+public final class AutocompleteEngine<T extends Indexable> implements Engine<T> {
     private final Analyzer analyzer;
     private final Comparator<ScoredObject<T>> comparator;
     private final IndexAdapter<T> index;
@@ -55,6 +56,7 @@ public final class AutocompleteEngine<T extends Indexable> {
      *
      * @throws NullPointerException if {@code elements} is null or contains a null element;
      */
+    @Override
     public boolean addAll(Collection<T> elements) {
         checkPointer(elements != null);
         boolean result = false;
@@ -107,6 +109,7 @@ public final class AutocompleteEngine<T extends Indexable> {
      * Returns a {@link List} of all elements that match a query, sorted
      * according to the default comparator.
      */
+    @Override
     public List<T> search(String query) {
         checkPointer(query != null);
         read.lock();

@@ -9,6 +9,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import co.thefabulous.search.fuse.Engine;
 import co.thefabulous.search.search.AutocompleteEngine;
 
 
@@ -16,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView listview;
     private ArrayList<Habit> habits;
-    private AutocompleteEngine<Habit> engine;
+    private Engine<Habit> engine;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
