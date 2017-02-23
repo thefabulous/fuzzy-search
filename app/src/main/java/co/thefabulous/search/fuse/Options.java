@@ -154,7 +154,7 @@ public class Options {
         return h;
     }
 
-    static final class Builder {
+    public static final class Builder {
         private String id;
         private SearchFunctionFactory searchFunction;
         private SortFunction sortFunction;
@@ -174,10 +174,10 @@ public class Options {
         private Integer distance;
         private Integer maxPatternLength;
 
-        Builder() {
+        public Builder() {
         }
 
-        Builder(Options source) {
+        public Builder(Options source) {
             this.id = source.id;
             this.searchFunction = source.searchFunction;
             this.sortFunction = source.sortFunction;

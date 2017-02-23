@@ -26,7 +26,7 @@ import static co.thefabulous.search.search.common.Precondition.checkArgument;
  */
 public class FuseEngine<T extends Indexable> implements Engine<T> {
 
-    private final Options DEFAULT_OPTIONS = builder()
+    public static final Options DEFAULT_OPTIONS = Options.builder()
             .id(null)
             .caseSensitive(false)
             .include(new ArrayList<String>())
@@ -34,8 +34,8 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             .searchFunction(null) //// TODO: 23.02.2017 set BitapSearcher
             .sortFunction(new SortFunction() {
                 @Override
-                public double sort(SearchResult a, SearchResult b) {
-                    return a.score() - b.score();
+                public int sort(Options.SearchResult a, Options.SearchResult b) {
+                    return Double.compare(a.score(), b.score());
                 }
             })
             .getFunction(new GetFunction() {
