@@ -41,7 +41,8 @@ public class FuseEngineTest {
 
     @Test
     public void whenNotTokenizing_analyze_storesResults_inMap_and_inList() {
-        FuseEngine<Habit> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS).build());
+        FuseEngine<Habit> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
+                .tokenize(true).build());
 
         fuseEngine.results = new ArrayList<>();
         fuseEngine.resultMap = new ArrayMap<>();
@@ -53,8 +54,9 @@ public class FuseEngineTest {
                 return Arrays.asList("The Book of Lies", "Brad");
             }
         };
-        fuseEngine.analyze("", indexable.getFields().get(0), null, 0); //index is the same because
-        fuseEngine.analyze("", indexable.getFields().get(1), null, 0); //it's the same indexable
+        int indexableIndex = 0;
+        fuseEngine.analyze("", indexable.getFields().get(0), null, indexableIndex);
+        fuseEngine.analyze("", indexable.getFields().get(1), null, indexableIndex);
 
         assertThat(fuseEngine.results.size()).isEqualTo(1);
         assertThat(fuseEngine.results.get(0).output.size()).isEqualTo(2);

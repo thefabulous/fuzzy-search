@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -333,8 +334,13 @@ public class Options {
         SearchFunction getSearchFunction(String pattern, Options options);
     }
 
-    interface SortFunction {
-        int sort(SearchResult a, SearchResult b);
+    static abstract class SortFunction implements Comparator<FuseEngine.ExistingResult> {
+        abstract int sort(FuseEngine.ExistingResult a, FuseEngine.ExistingResult b);
+
+        @Override
+        public int compare(FuseEngine.ExistingResult a, FuseEngine.ExistingResult b) {
+            return sort(a, b);
+        }
     }
 
     interface GetFunction {

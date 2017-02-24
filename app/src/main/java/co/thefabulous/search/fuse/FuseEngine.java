@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,6 @@ import co.thefabulous.search.search.data.Indexable;
 import static co.thefabulous.search.fuse.Options.GetFunction;
 import static co.thefabulous.search.fuse.Options.SearchFunction;
 import static co.thefabulous.search.fuse.Options.SearchResult;
-import static co.thefabulous.search.fuse.Options.SortFunction;
 import static co.thefabulous.search.search.common.Precondition.checkArgument;
 
 /**
@@ -32,11 +32,11 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             .caseSensitive(false)
             .include(new ArrayList<String>())
             .shouldSort(true)
-            .searchFunction(new BitapFactory()) //// TODO: 23.02.2017 set BitapSearcher
-            .sortFunction(new SortFunction() {
+            .searchFunction(new BitapFactory())
+            .sortFunction(new Options.SortFunction() {
                 @Override
-                public int sort(Options.SearchResult a, Options.SearchResult b) {
-                    return Double.compare(a.score(), b.score());
+                int sort(ExistingResult a, ExistingResult b) {
+                    return Double.compare(a.score, b.score);
                 }
             })
             .getFunction(new GetFunction() {
@@ -49,7 +49,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             .verbose(false)
             .tokenize(false)
             .matchAllTokens(false)
-            .tokenSeparator("\\s+") //// TODO: 23.02.2017 check if correct
+            .tokenSeparator("\\s+")
             .minimumCharLength(1)
             .findAllMatches(false)
             .build();
@@ -61,7 +61,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     @VisibleForTesting SearchFunction fullSearcher;
     @VisibleForTesting List<ExistingResult> results;
     @VisibleForTesting Map<Integer, ExistingResult> resultMap;
-    private Map<String, Double> keyMap;
 
     public FuseEngine(@NonNull Options options) {
         checkArgument(options != null, "options cannot be null");
@@ -70,6 +69,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     }
 
     private void mergeOptionsWithDefault(Options options) {
+
         //// TODO: 23.02.2017
     }
 
@@ -91,7 +91,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
 
         results = new ArrayList<>();
         resultMap = new ArrayMap<>();
-        keyMap = null;
 
         prepareSearchers(pattern);
         startSearch();
@@ -113,8 +112,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     }
 
     private void startSearch() {
-        keyMap = new ArrayMap<>();
-
         int i = 0;
         for (T t : dataSet) {
             final List<String> fields = t.getFields();
@@ -165,7 +162,8 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
 //        }
 //    }
 
-    @VisibleForTesting void analyze(final String key, String text, Object entity, int index) {
+    @VisibleForTesting
+    void analyze(final String key, String text, Object entity, int index) {
         if (TextUtils.isEmpty(text)) {
             return;
         }
@@ -260,8 +258,9 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                 existingResult.output.add(searchResult);
             } else {
                 // Add it to the raw result list
-                resultMap.put(index, new ExistingResult(entity, searchResult));
-                results.add(resultMap.get(index));
+                existingResult = new ExistingResult(entity, searchResult);
+                resultMap.put(index, existingResult);
+                results.add(existingResult);
             }
         }
     }
@@ -286,7 +285,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             } else {
                 results.get(i).score = bestScore;
             }
-
 //            log(results.get(i));
         }
     }
@@ -294,11 +292,12 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     private void sort() {
         if (options.shouldSort) {
             log("\n\nSorting");
-            // TODO: 23.02.2017  
+            Collections.sort(results, options.sortFunction);
         }
     }
 
     private List<T> format() {
+        // TODO: 23.02.2017
         return null;
     }
 
