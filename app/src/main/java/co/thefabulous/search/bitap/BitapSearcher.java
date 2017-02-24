@@ -86,19 +86,37 @@ public class BitapSearcher implements SearchFunction {
         int charMatch;
         double score;
         ArrayList<Integer> locations;
-        boolean isMatched = false;
+        boolean isMatched;
         int[] matchMask;
-        int matchesLen;
         String match;
 
         text = options.caseSensitive ? text : text.toLowerCase();
 
-        if (this.pattern.equals(text)) {
+        if (text.length() == pattern.length() && this.pattern.equals(text)) {
             // Exact match
             return new BitapSearchResult.Builder()
                     .isMatch(true)
                     .score(0)
                     .matchedIndice(new ImmutablePair<>(0, text.length() - 1))
+                    .build();
+        }
+
+        if (text.length() < pattern.length() && this.pattern.contains(text)) {
+            // Exact match
+            return new BitapSearchResult.Builder()
+                    .isMatch(true)
+                    .score(0)
+                    .matchedIndice(new ImmutablePair<>(0, text.length() - 1))
+                    .build();
+        }
+
+        if (pattern.length() < text.length() && text.contains(pattern)) {
+            // Exact match
+            int index = text.indexOf(pattern);
+            return new BitapSearchResult.Builder()
+                    .isMatch(true)
+                    .score(0)
+                    .matchedIndice(new ImmutablePair<>(index, index + pattern.length() - 1))
                     .build();
         }
 

@@ -9,11 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import co.thefabulous.search.engine.ScoredObject;
 import co.thefabulous.search.engine.SearchResult;
 import co.thefabulous.search.util.ImmutablePair;
+import co.thefabulous.search.util.Util;
 
 public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
     final String prefix = "<font color='#E91E63'><b>";
@@ -66,16 +69,16 @@ public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
 //            }
 //        });
 
-//        if (searchPattern.length() > 1) {
-//            Collections.sort(matchedIndices, new Comparator<ImmutablePair<Integer, Integer>>() {
-//                @Override
-//                public int compare(ImmutablePair<Integer, Integer> o1, ImmutablePair<Integer, Integer> o2) {
-//                    return Util.compare(o2.second - o2.first, o1.second - o1.first);
-//                }
-//            });
-//
-//            matchedIndices = Collections.singletonList(matchedIndices.get(0));
-//        }
+        if (searchPattern.length() > 1) {
+            Collections.sort(matchedIndices, new Comparator<ImmutablePair<Integer, Integer>>() {
+                @Override
+                public int compare(ImmutablePair<Integer, Integer> o1, ImmutablePair<Integer, Integer> o2) {
+                    return Util.compare(o2.second - o2.first, o1.second - o1.first);
+                }
+            });
+
+            matchedIndices = Collections.singletonList(matchedIndices.get(0));
+        }
 
 
         int offset = 0;
