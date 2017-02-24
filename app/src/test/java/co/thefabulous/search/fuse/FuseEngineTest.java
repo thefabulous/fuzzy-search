@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import co.thefabulous.search.Habit;
+import co.thefabulous.search.bitap.BitapSearcher;
 import co.thefabulous.search.fuse.data.Indexable;
 import co.thefabulous.search.fuse.data.ScoredObject;
 
@@ -64,6 +65,38 @@ public class FuseEngineTest {
 
         assertThat(fuseEngine.resultMap.size()).isEqualTo(1);
         assertThat(fuseEngine.resultMap.get(0).fieldsResults.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void checkResultWithBitapSearcher() {
+        String pattern = "Clench";
+        final String text = "Clench your Fists or Squeeze your Hands";
+
+        BitapSearcher bitapSearcher = new BitapSearcher(pattern, FuseEngine.DEFAULT_OPTIONS);
+        Options.SearchResult searchResult = bitapSearcher.search(text, false);
+
+        FuseEngine<Habit, ScoredObject<Habit>> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
+                .tokenize(false).build());
+
+        fuseEngine.results = new ArrayList<>();
+        fuseEngine.resultMap = new ArrayMap<>();
+        fuseEngine.prepareSearchers(pattern);
+
+        final Indexable indexable = new Indexable() {
+            @Override
+            public List<String> getFields() {
+                return Arrays.asList(text);
+            }
+        };
+        int indexableIndex = 0;
+
+        fuseEngine.analyze(indexable.getFields().get(0), null, indexableIndex);
+        fuseEngine.computeScore();
+
+        assertThat(fuseEngine.results.size()).isEqualTo(1);
+        assertThat(fuseEngine.results.get(0).fieldsResults.size()).isEqualTo(1);
+
+        assertThat(fuseEngine.results.get(0).score).isEqualTo(searchResult.score());
     }
 
 }

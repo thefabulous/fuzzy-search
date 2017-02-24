@@ -25,7 +25,7 @@ import static co.thefabulous.search.util.Precondition.checkArgument;
  * Created by Bartosz Lipinski
  * 23.02.2017
  */
-public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implements Engine<T,P> {
+public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implements Engine<T, P> {
 
     public static final Options DEFAULT_OPTIONS = Options.builder()
             .caseSensitive(false)
@@ -49,11 +49,11 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
 
     @NonNull
     private final Options options;
-    private Collection<T> dataSet;
     @VisibleForTesting List<Options.SearchFunction> tokenSearchers;
     @VisibleForTesting SearchFunction fullSearcher;
     @VisibleForTesting List<IndexableSearchResult<T>> results;
     @VisibleForTesting Map<Integer, IndexableSearchResult<T>> resultMap;
+    private Collection<T> dataSet;
 
     public FuseEngine(@NonNull Options options) {
         //noinspection ConstantConditions
@@ -216,7 +216,7 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
         }
     }
 
-    private void computeScore() {
+    void computeScore() {
         log("\n\nComputing score:\n");
 
         for (int i = 0, size = results.size(); i < size; i++) {
@@ -224,18 +224,11 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
             List<SearchResult> output = results.get(i).fieldsResults;
             int scoreLen = output.size();
 
-            double bestScore = 1;
-
             for (int j = 0; j < scoreLen; j++) {
-                double score = output.get(j).score();
-                bestScore = Math.min(1, score);
+                totalScore += output.get(j).score();
             }
 
-            if (bestScore == 1) {
-                results.get(i).score = totalScore / scoreLen;
-            } else {
-                results.get(i).score = bestScore;
-            }
+            results.get(i).score = totalScore / scoreLen;
 //            log(results.get(i));
         }
     }
@@ -252,10 +245,10 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
         return null;
     }
 
-    public static class IndexableSearchResult <T>{
+    public static class IndexableSearchResult<T> {
+        public double score;
         T entity;
         List<SearchResult> fieldsResults;
-        public double score;
 
         public IndexableSearchResult(T entity, SearchResult result) {
             this.entity = entity;
