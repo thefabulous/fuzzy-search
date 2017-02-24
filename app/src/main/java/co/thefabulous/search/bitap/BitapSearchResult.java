@@ -1,17 +1,16 @@
 package co.thefabulous.search.bitap;
 
 
-import android.support.v4.util.Pair;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import co.thefabulous.search.engine.SearchResult;
+import co.thefabulous.search.util.ImmutablePair;
 
 public class BitapSearchResult implements SearchResult {
     boolean isMatch;
     double score;
-    List<Pair<Integer, Integer>> matchedIndices;
+    List<ImmutablePair<Integer, Integer>> matchedIndices;
 
     private BitapSearchResult(Builder builder) {
         isMatch = builder.isMatch;
@@ -30,14 +29,14 @@ public class BitapSearchResult implements SearchResult {
     }
 
     @Override
-    public List<Pair<Integer, Integer>> matchedIndices() {
+    public List<ImmutablePair<Integer, Integer>> matchedIndices() {
         return matchedIndices;
     }
 
     public static final class Builder {
         private boolean isMatch;
         private double score;
-        private List<Pair<Integer, Integer>> matchedIndices;
+        private List<ImmutablePair<Integer, Integer>> matchedIndices;
 
         public Builder() {
         }
@@ -52,7 +51,7 @@ public class BitapSearchResult implements SearchResult {
             return this;
         }
 
-        public Builder matchedIndice(Pair<Integer, Integer> val) {
+        public Builder matchedIndice(ImmutablePair<Integer, Integer> val) {
             if (matchedIndices == null) {
                 matchedIndices = new ArrayList<>();
             }
@@ -60,7 +59,7 @@ public class BitapSearchResult implements SearchResult {
             return this;
         }
 
-        public Builder matchedIndices(List<Pair<Integer, Integer>> val) {
+        public Builder matchedIndices(List<ImmutablePair<Integer, Integer>> val) {
             matchedIndices = val;
             return this;
         }

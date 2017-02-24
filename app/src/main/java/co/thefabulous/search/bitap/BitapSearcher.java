@@ -1,7 +1,5 @@
 package co.thefabulous.search.bitap;
 
-import android.support.v4.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,6 +12,8 @@ import java.util.regex.Pattern;
 import co.thefabulous.search.engine.SearchFunction;
 import co.thefabulous.search.engine.SearchResult;
 import co.thefabulous.search.fuse.Options;
+import co.thefabulous.search.util.ImmutablePair;
+import co.thefabulous.search.util.Util;
 import co.thefabulous.search.util.WordTokenizer;
 
 public class BitapSearcher implements SearchFunction {
@@ -98,7 +98,7 @@ public class BitapSearcher implements SearchFunction {
             return new BitapSearchResult.Builder()
                     .isMatch(true)
                     .score(0)
-                    .matchedIndice(new Pair<>(0, text.length() - 1))
+                    .matchedIndice(new ImmutablePair<>(0, text.length() - 1))
                     .build();
         }
 
@@ -116,12 +116,12 @@ public class BitapSearcher implements SearchFunction {
             Pattern p = Pattern.compile(regEx);
             Matcher matcher = p.matcher(text);
 
-            ArrayList<Pair<Integer, Integer>> matchedIndices = new ArrayList<>();
+            ArrayList<ImmutablePair<Integer, Integer>> matchedIndices = new ArrayList<>();
             while (matcher.find()) {
                 match = matcher.group(0);
                 int index = text.indexOf(match);
                 while (index >= 0) {
-                    Pair<Integer, Integer> pair = new Pair<>(index, index + match.length() - 1);
+                    ImmutablePair<Integer, Integer> pair = new ImmutablePair<>(index, index + match.length() - 1);
                     if (!matchedIndices.contains(pair)) {
                         matchedIndices.add(pair);
                     }
@@ -129,10 +129,10 @@ public class BitapSearcher implements SearchFunction {
                     index = text.indexOf(match, index + 1);
                 }
             }
-            Collections.sort(matchedIndices, new Comparator<Pair<Integer, Integer>>() {
+            Collections.sort(matchedIndices, new Comparator<ImmutablePair<Integer, Integer>>() {
                 @Override
-                public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
-                    return Integer.compare(o1.first, o2.first);
+                public int compare(ImmutablePair<Integer, Integer> o1, ImmutablePair<Integer, Integer> o2) {
+                    return Util.compare(o1.first, o2.first);
                 }
             });
 
@@ -284,8 +284,8 @@ public class BitapSearcher implements SearchFunction {
         return accuracy + (proximity / (float) this.options.distance);
     }
 
-    private ArrayList<Pair<Integer, Integer>> getMatchedIndices(int[] matchMask) {
-        ArrayList<Pair<Integer, Integer>> matchedIndices = new ArrayList<>();
+    private ArrayList<ImmutablePair<Integer, Integer>> getMatchedIndices(int[] matchMask) {
+        ArrayList<ImmutablePair<Integer, Integer>> matchedIndices = new ArrayList<>();
         int start = -1;
         int end = -1;
         int i = 0;
@@ -298,14 +298,14 @@ public class BitapSearcher implements SearchFunction {
             } else if (match == 0 && start != -1) {
                 end = i - 1;
                 if ((end - start) + 1 >= this.options.minimumCharLength) {
-                    matchedIndices.add(new Pair<>(start, end));
+                    matchedIndices.add(new ImmutablePair<>(start, end));
                 }
                 start = -1;
             }
         }
         if (matchMask[i - 1] > 0) {
             if ((i - 1 - start) + 1 >= this.options.minimumCharLength) {
-                matchedIndices.add(new Pair<>(start, i - 1));
+                matchedIndices.add(new ImmutablePair<>(start, i - 1));
             }
         }
         return matchedIndices;

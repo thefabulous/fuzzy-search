@@ -1,7 +1,5 @@
 package co.thefabulous.search.fuse;
 
-import android.support.v4.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,6 +13,7 @@ import co.thefabulous.search.engine.Indexable;
 import co.thefabulous.search.engine.ScoredObject;
 import co.thefabulous.search.engine.SearchFunction;
 import co.thefabulous.search.engine.SearchResult;
+import co.thefabulous.search.util.ImmutablePair;
 import co.thefabulous.search.util.WordTokenizer;
 
 import static co.thefabulous.search.util.Precondition.checkArgument;
@@ -193,7 +192,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                 }
 
                 @Override
-                public List<Pair<Integer, Integer>> matchedIndices() {
+                public List<ImmutablePair<Integer, Integer>> matchedIndices() {
                     return mainSearchResult.matchedIndices();
                 }
             };

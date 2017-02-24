@@ -1,8 +1,8 @@
 package co.thefabulous.search.engine;
 
-import android.support.v4.util.Pair;
-
 import java.util.List;
+
+import co.thefabulous.search.util.ImmutablePair;
 
 /**
  * Created by Bartosz Lipinski
@@ -13,5 +13,5 @@ public interface SearchResult {
 
     double score();
 
-    List<Pair<Integer, Integer>> matchedIndices();
+    List<ImmutablePair<Integer, Integer>> matchedIndices();
 }

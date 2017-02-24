@@ -2,7 +2,6 @@ package co.thefabulous.search;
 
 
 import android.content.Context;
-import android.support.v4.util.Pair;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,9 +12,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import co.thefabulous.search.engine.SearchResult;
-import co.thefabulous.search.fuse.Options;
 import co.thefabulous.search.engine.ScoredObject;
+import co.thefabulous.search.engine.SearchResult;
+import co.thefabulous.search.util.ImmutablePair;
 
 public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
     final String prefix = "<font color=\'#E91E63\'><b>";
@@ -58,7 +57,7 @@ public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
     }
 
     private String getHighlightedString(SearchResult searchResult, String text) {
-        List<Pair<Integer, Integer>> matchedIndices = searchResult.matchedIndices();
+        List<ImmutablePair<Integer, Integer>> matchedIndices = searchResult.matchedIndices();
 //        Collections.sort(matchedIndices, new Comparator<Pair<Integer, Integer>>() {
 //            @Override
 //            public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
@@ -67,7 +66,7 @@ public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
 //        });
 
         int offset = 0;
-        for (Pair<Integer, Integer> machIndexes : matchedIndices) {
+        for (ImmutablePair<Integer, Integer> machIndexes : matchedIndices) {
             text = text.substring(0, offset + machIndexes.first)
                     + prefix
                     + text.substring(offset + machIndexes.first, offset + machIndexes.second + 1)
