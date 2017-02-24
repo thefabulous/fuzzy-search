@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import co.thefabulous.search.engine.Engine;
 import co.thefabulous.search.fuse.FuseEngine;
 import co.thefabulous.search.fuse.Options;
+import co.thefabulous.search.util.Util;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView listview;
     private ArrayList<Habit> habits;
     private Engine<Habit> engine;
+    private String searchPattern = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,10 +73,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void search(String s) {
-        if (s == null || s.length() == 0) {
-            listview.setAdapter(new HabitAdapter(this, habits));
-        } else {
-            listview.setAdapter(new ScoredHabitAdapter(this, engine.search(s)));
+        if (!searchPattern.equals(s.trim())) {
+            searchPattern = s.trim();
+            if (Util.isNullOrEmpty(searchPattern)) {
+                listview.setAdapter(new HabitAdapter(this, habits));
+            } else {
+                listview.setAdapter(new ScoredHabitAdapter(this, engine.search(searchPattern)));
+            }
         }
     }
 }
