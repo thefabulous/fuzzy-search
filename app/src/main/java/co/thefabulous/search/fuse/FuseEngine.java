@@ -38,7 +38,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                     return a.compareTo(b);
                 }
             })
-            .keys(new ArrayList<String>())
             .verbose(false)
             .tokenize(false)
             .matchAllTokens(false)
@@ -63,8 +62,17 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     }
 
     private void mergeOptionsWithDefault(Options options) {
-
-        //// TODO: 23.02.2017
+        options.caseSensitive = options.caseSensitive != null ? options.caseSensitive : DEFAULT_OPTIONS.caseSensitive;
+        options.include = options.include != null ? options.include : DEFAULT_OPTIONS.include;
+        options.minimumCharLength = options.minimumCharLength != null ? options.minimumCharLength : DEFAULT_OPTIONS.minimumCharLength;
+        options.shouldSort = options.shouldSort != null ? options.shouldSort : DEFAULT_OPTIONS.shouldSort;
+        options.tokenize = options.tokenize != null ? options.tokenize : DEFAULT_OPTIONS.tokenize;
+        options.matchAllTokens = options.matchAllTokens != null ? options.matchAllTokens : DEFAULT_OPTIONS.matchAllTokens;
+        options.findAllMatches = options.findAllMatches != null ? options.findAllMatches : DEFAULT_OPTIONS.findAllMatches;
+        options.location = options.location != null ? options.location : DEFAULT_OPTIONS.location;
+        options.threshold = options.threshold != null ? options.threshold : DEFAULT_OPTIONS.threshold;
+        options.distance = options.distance != null ? options.distance : DEFAULT_OPTIONS.distance;
+        options.maxPatternLength = options.maxPatternLength != null ? options.maxPatternLength : DEFAULT_OPTIONS.maxPatternLength;
     }
 
     private void log(String stringToFormat, Object... args) {
@@ -227,7 +235,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                 totalScore += value.score();
             }
             results.get(i).setScore(totalScore / (double) output.size());
-//            log(results.get(i));
+            log(results.get(i).toString());
         }
     }
 

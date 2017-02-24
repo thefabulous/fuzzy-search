@@ -30,13 +30,12 @@ public class Options {
     public Boolean tokenize;
     public Boolean matchAllTokens;
     public Boolean findAllMatches;
-    public List<String> keys;
     public Integer location;
     public Float threshold;
     public Integer distance;
     public Integer maxPatternLength;
 
-    public Options( SearchFunctionFactory searchFunction, SortFunction sortFunction, Boolean verbose, String tokenSeparator, Boolean caseSensitive, List<String> include, Integer minimumCharLength, Boolean shouldSort, Boolean tokenize, Boolean matchAllTokens, Boolean findAllMatches, List<String> keys, Integer location, Float threshold, Integer distance, Integer maxPatternLength) {
+    public Options( SearchFunctionFactory searchFunction, SortFunction sortFunction, Boolean verbose, String tokenSeparator, Boolean caseSensitive, List<String> include, Integer minimumCharLength, Boolean shouldSort, Boolean tokenize, Boolean matchAllTokens, Boolean findAllMatches, Integer location, Float threshold, Integer distance, Integer maxPatternLength) {
         this.searchFunction = searchFunction;
         this.sortFunction = sortFunction;
         this.verbose = verbose;
@@ -48,7 +47,6 @@ public class Options {
         this.tokenize = tokenize;
         this.matchAllTokens = matchAllTokens;
         this.findAllMatches = findAllMatches;
-        this.keys = keys;
         this.location = location;
         this.threshold = threshold;
         this.distance = distance;
@@ -78,7 +76,6 @@ public class Options {
                 + "tokenize=" + tokenize + ", "
                 + "matchAllTokens=" + matchAllTokens + ", "
                 + "findAllMatches=" + findAllMatches + ", "
-                + "keys=" + keys + ", "
                 + "location=" + location + ", "
                 + "threshold=" + threshold + ", "
                 + "distance=" + distance + ", "
@@ -105,7 +102,6 @@ public class Options {
                     && ((this.tokenize == null) ? (that.tokenize == null) : this.tokenize.equals(that.tokenize))
                     && ((this.matchAllTokens == null) ? (that.matchAllTokens == null) : this.matchAllTokens.equals(that.matchAllTokens))
                     && ((this.findAllMatches == null) ? (that.findAllMatches == null) : this.findAllMatches.equals(that.findAllMatches))
-                    && ((this.keys == null) ? (that.keys == null) : this.keys.equals(that.keys))
                     && ((this.location == null) ? (that.location == null) : this.location.equals(that.location))
                     && ((this.threshold == null) ? (that.threshold == null) : this.threshold.equals(that.threshold))
                     && ((this.distance == null) ? (that.distance == null) : this.distance.equals(that.distance))
@@ -142,8 +138,6 @@ public class Options {
         h *= 1000003;
         h ^= (findAllMatches == null) ? 0 : this.findAllMatches.hashCode();
         h *= 1000003;
-        h ^= (keys == null) ? 0 : this.keys.hashCode();
-        h *= 1000003;
         h ^= (location == null) ? 0 : this.location.hashCode();
         h *= 1000003;
         h ^= (threshold == null) ? 0 : this.threshold.hashCode();
@@ -166,7 +160,6 @@ public class Options {
         private Boolean tokenize;
         private Boolean matchAllTokens;
         private Boolean findAllMatches;
-        private List<String> keys;
         private Integer location;
         private Float threshold;
         private Integer distance;
@@ -187,7 +180,6 @@ public class Options {
             this.tokenize = source.tokenize;
             this.matchAllTokens = source.matchAllTokens;
             this.findAllMatches = source.findAllMatches;
-            this.keys = new ArrayList<>(source.keys);
             this.location = source.location;
             this.threshold = source.threshold;
             this.distance = source.distance;
@@ -249,11 +241,6 @@ public class Options {
             return this;
         }
 
-        public Builder keys(@Nullable List<String> keys) {
-            this.keys = keys;
-            return this;
-        }
-
         public Builder location(@Nullable Integer location) {
             this.location = location;
             return this;
@@ -287,7 +274,6 @@ public class Options {
                     this.tokenize,
                     this.matchAllTokens,
                     this.findAllMatches,
-                    this.keys,
                     this.location,
                     this.threshold,
                     this.distance,

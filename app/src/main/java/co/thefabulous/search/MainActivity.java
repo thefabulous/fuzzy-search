@@ -9,6 +9,8 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import co.thefabulous.search.fuse.Engine;
+
 
 public class MainActivity extends AppCompatActivity {
 
