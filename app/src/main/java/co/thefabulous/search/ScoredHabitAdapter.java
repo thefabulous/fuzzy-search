@@ -3,7 +3,6 @@ package co.thefabulous.search;
 
 import android.content.Context;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,7 @@ import co.thefabulous.search.engine.SearchResult;
 import co.thefabulous.search.util.ImmutablePair;
 
 public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
-    final String prefix = "<font color=\'#E91E63\'><b>";
+    final String prefix = "<font color='#E91E63'><b>";
     final String suffix = "</b></font>";
     private final String searchPattern;
 
@@ -60,6 +59,12 @@ public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
 
     private String getHighlightedString(SearchResult searchResult, String text) {
         List<ImmutablePair<Integer, Integer>> matchedIndices = searchResult.matchedIndices();
+//        Collections.sort(matchedIndices, new Comparator<ImmutablePair<Integer, Integer>>() {
+//            @Override
+//            public int compare(ImmutablePair<Integer, Integer> o1, ImmutablePair<Integer, Integer> o2) {
+//                return Util.compare(o1.second, o2.first);
+//            }
+//        });
 
 //        if (searchPattern.length() > 1) {
 //            Collections.sort(matchedIndices, new Comparator<ImmutablePair<Integer, Integer>>() {
@@ -75,15 +80,30 @@ public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
 
         int offset = 0;
         for (ImmutablePair<Integer, Integer> machIndexes : matchedIndices) {
-            text = text.substring(0, offset + machIndexes.first)
-                    + prefix
-                    + text.substring(offset + machIndexes.first, offset + machIndexes.second + 1)
-                    + suffix
-                    + text.substring(offset + machIndexes.second + 1, text.length());
+            if (!isOverlapped(machIndexes, matchedIndices)) {
+                text = text.substring(0, offset + machIndexes.first)
+                        + prefix
+                        + text.substring(offset + machIndexes.first, offset + machIndexes.second + 1)
+                        + suffix
+                        + text.substring(offset + machIndexes.second + 1, text.length());
 
-            offset += prefix.length() + suffix.length();
+                offset += prefix.length() + suffix.length();
+            }
         }
-        Log.d("Highlight", text);
+//        Log.d("Highlight", text);
         return text;
+    }
+
+    private boolean isOverlapped(ImmutablePair<Integer, Integer> targetIdexex, List<ImmutablePair<Integer, Integer>> allIndices) {
+        for (ImmutablePair<Integer, Integer> matchedIndexex : allIndices) {
+            if (matchedIndexex == targetIdexex) {
+                continue;
+            }
+
+            if (matchedIndexex.first <= targetIdexex.first && matchedIndexex.second >= targetIdexex.second) {
+                return true;
+            }
+        }
+        return false;
     }
 }
