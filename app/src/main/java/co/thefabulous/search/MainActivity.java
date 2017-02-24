@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         engine = new FuseEngine<>(Options.builder()
                 .tokenize(true)
                 .matchAllTokens(false)
-                .threshold(0.6f)
+                .threshold(0.4f)
                 .build());
         engine.addAll(habits);
 

@@ -4,8 +4,10 @@ package co.thefabulous.search.bitap;
 import android.support.v4.util.Pair;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -101,10 +103,10 @@ public class BitapSearcher implements Options.SearchFunction {
         // When pattern length is greater than the machine word length, just do a a regex comparison
         if (this.patternLen > maxPatternLength) {
             WordTokenizer wordTokenizer = new WordTokenizer();
-            Collection<String> apply = wordTokenizer.apply(pattern);
+            HashSet<String> words = new HashSet<>(wordTokenizer.apply(pattern));
             StringBuilder sb = new StringBuilder();
             boolean first = true;
-            for (String item : apply) {
+            for (String item : words) {
                 if (!first || (first = false)) sb.append('|');
                 sb.append(item);
             }
@@ -115,8 +117,22 @@ public class BitapSearcher implements Options.SearchFunction {
             ArrayList<Pair<Integer, Integer>> matchedIndices = new ArrayList<>();
             while (matcher.find()) {
                 match = matcher.group(0);
-                matchedIndices.add(new Pair<>(text.indexOf(match), text.indexOf(match) + match.length() - 1));
+                int index = text.indexOf(match);
+                while (index >= 0) {
+                    Pair<Integer, Integer> pair = new Pair<>(index, index + match.length() - 1);
+                    if (!matchedIndices.contains(pair)) {
+                        matchedIndices.add(pair);
+                    }
+
+                    index = text.indexOf(match, index + 1);
+                }
             }
+            Collections.sort(matchedIndices, new Comparator<Pair<Integer, Integer>>() {
+                @Override
+                public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
+                    return Integer.compare(o1.first, o2.first);
+                }
+            });
 
             // TODO: revisit this score
             isMatched = !matchedIndices.isEmpty();

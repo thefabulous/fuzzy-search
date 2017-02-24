@@ -4,21 +4,20 @@ package co.thefabulous.search;
 import android.content.Context;
 import android.support.v4.util.Pair;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import co.thefabulous.search.fuse.Options;
 import co.thefabulous.search.fuse.data.ScoredObject;
 
 public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
-    final String prefix = "<font color='#E91E63'><b>";
+    final String prefix = "<font color=\'#E91E63\'><b>";
     final String suffix = "</b></font>";
 
     public ScoredHabitAdapter(Context context, List<ScoredObject<Habit>> habits) {
@@ -38,51 +37,45 @@ public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
         TextView subtitleTextView = (TextView) convertView.findViewById(R.id.subtitle_textview);
         // Populate the data into the template view using the data object
 
-        Options.SearchResult searchResultTitle = item.getFieldsSearchResults().get(0);
-        if (searchResultTitle != null
-                && searchResultTitle.matchedIndices() != null
-                && !searchResultTitle.matchedIndices().isEmpty()) {
-            String title = item.getObject().getTitle();
-            titleTextView.setText(Html.fromHtml(getHighlightedString(searchResultTitle, title)));
-        } else {
-            titleTextView.setText(item.getObject().getTitle());
-        }
-
-        Options.SearchResult searchResultSubtitle = item.getFieldsSearchResults().get(1);
-        if (searchResultSubtitle != null
-                && searchResultSubtitle.matchedIndices() != null
-                && !searchResultSubtitle.matchedIndices().isEmpty()) {
-            String text = item.getObject().getSubtitle();
-            subtitleTextView.setText(Html.fromHtml(getHighlightedString(searchResultSubtitle, text)));
-        } else {
-            subtitleTextView.setText(item.getObject().getSubtitle());
-        }
-
+        setText(item, titleTextView, 0);
+        setText(item, subtitleTextView, 1);
 
         // Return the completed view to render on screen
         return convertView;
     }
 
-    private String getHighlightedString(Options.SearchResult searchResult, String text) {
-        int offset = 0;
-        Collections.sort(searchResult.matchedIndices(), new Comparator<Pair<Integer, Integer>>() {
-            @Override
-            public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
-                return Integer.compare(o2.second - o2.first, o1.second - o1.first);
-            }
-        });
-//        for (Pair<Integer, Integer> machIndexes : searchResult.matchedIndices()) {
-//            if (!machIndexes.first.equals(machIndexes.second)) {
-        Pair<Integer, Integer> machIndexes = searchResult.matchedIndices().get(0);
-                text = text.substring(0, offset + machIndexes.first)
-                        + prefix
-                        + text.substring(offset + machIndexes.first, offset + machIndexes.second + 1)
-                        + suffix
-                        + text.substring(offset + machIndexes.second + 1, text.length());
+    private void setText(ScoredObject<Habit> item, TextView textView, int index) {
+        Options.SearchResult searchResultTitle = item.getFieldsSearchResults().get(index);
+        if (searchResultTitle != null
+                && searchResultTitle.matchedIndices() != null
+                && !searchResultTitle.matchedIndices().isEmpty()) {
+            String text = item.getObject().getFields().get(index);
+            textView.setText(Html.fromHtml(getHighlightedString(searchResultTitle, text)));
+        } else {
+            textView.setText(item.getObject().getFields().get(index));
+        }
+    }
 
-                offset += prefix.length() + suffix.length();
+    private String getHighlightedString(Options.SearchResult searchResult, String text) {
+        List<Pair<Integer, Integer>> matchedIndices = searchResult.matchedIndices();
+//        Collections.sort(matchedIndices, new Comparator<Pair<Integer, Integer>>() {
+//            @Override
+//            public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
+//                return Integer.compare(o2.second - o2.first, o1.second - o1.first);
 //            }
-//        }
+//        });
+
+        int offset = 0;
+        for (Pair<Integer, Integer> machIndexes : matchedIndices) {
+            text = text.substring(0, offset + machIndexes.first)
+                    + prefix
+                    + text.substring(offset + machIndexes.first, offset + machIndexes.second + 1)
+                    + suffix
+                    + text.substring(offset + machIndexes.second + 1, text.length());
+
+            offset += prefix.length() + suffix.length();
+        }
+        Log.d("Highlight", text);
         return text;
     }
 }
