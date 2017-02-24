@@ -37,5 +37,4 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile "com.google.truth:truth:0.31"
     testCompile "org.mockito:mockito-core:2.6.1"
-    testCompile "org.robolectric:robolectric:3.2.2"
 }

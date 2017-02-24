@@ -4,7 +4,7 @@ import android.support.v4.util.ArrayMap;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * Created by Bartosz Lipinski
  * 23.02.2017
  */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(JUnit4.class)
 public class FuseEngineTest {
 
     @Test
