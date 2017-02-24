@@ -42,6 +42,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             .tokenize(false)
             .matchAllTokens(false)
             .minimumCharLength(1)
+            .threshold(0.6f)
             .findAllMatches(false)
             .build();
 
@@ -49,9 +50,9 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     private final Options options;
     @VisibleForTesting List<Options.SearchFunction> tokenSearchers;
     @VisibleForTesting SearchFunction fullSearcher;
-    private Collection<T> dataSet;
     @VisibleForTesting List<ScoredObject<T>> results;
     @VisibleForTesting Map<Integer, ScoredObject<T>> resultMap;
+    private Collection<T> dataSet;
 
     public FuseEngine(@NonNull Options options) {
         //noinspection ConstantConditions
@@ -147,7 +148,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                 boolean hasMatchInText = false;
 
                 for (String word : words) {
-                    SearchResult tokenSearchResult = tokenSearcher.search(word, false);
+                    SearchResult tokenSearchResult = tokenSearcher.search(word);
                     Map<String, Double> obj = new ArrayMap<>();
                     if (tokenSearchResult.isMatch()) {
                         obj.put(word, tokenSearchResult.score());
@@ -168,18 +169,22 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                 }
 //               log("Token scores: %s", termScores); //// TODO: 23.02.2017 log this array
 
-                averageScore = scores.get(0);
-                int scoresLen = scores.size();
-                for (int i = 1; i < scoresLen; i++) {
-                    averageScore += scores.get(i);
+                if (scores.isEmpty()) {
+                    averageScore = 1.0;
+                } else {
+                    averageScore = scores.get(0);
+                    int scoresLen = scores.size();
+                    for (int i = 1; i < scoresLen; i++) {
+                        averageScore += scores.get(i);
+                    }
+                    averageScore = averageScore / (double) scoresLen;
                 }
-                averageScore = averageScore / (double) scoresLen;
 
                 log("Token scores average: %f", averageScore);
             }
         }
 
-        final SearchResult mainSearchResult = fullSearcher.search(text, true);
+        final SearchResult mainSearchResult = fullSearcher.search(text);
         log("Full text score: %f", mainSearchResult.score());
 
         final double finalScore = (averageScore != null) ?

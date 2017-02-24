@@ -64,7 +64,7 @@ public class BitapSearcher implements Options.SearchFunction {
     }
 
     @Override
-    public Options.SearchResult search(String text, boolean indexMatches) {
+    public Options.SearchResult search(String text) {
         Options options = this.options;
         int i;
         int j;
@@ -94,7 +94,7 @@ public class BitapSearcher implements Options.SearchFunction {
             return new BitapSearchResult.Builder()
                     .isMatch(true)
                     .score(0)
-                    .matchedIndice(indexMatches ? new Pair<>(0, text.length() - 1) : null)
+                    .matchedIndice(new Pair<>(0, text.length() - 1))
                     .build();
         }
 
@@ -114,20 +114,16 @@ public class BitapSearcher implements Options.SearchFunction {
 
             ArrayList<Pair<Integer, Integer>> matchedIndices = new ArrayList<>();
             while (matcher.find()) {
-                isMatched = true;
-
-                if (!indexMatches)
-                    break;
-
                 match = matcher.group(0);
                 matchedIndices.add(new Pair<>(text.indexOf(match), text.indexOf(match) + match.length() - 1));
             }
 
             // TODO: revisit this score
+            isMatched = !matchedIndices.isEmpty();
             return new BitapSearchResult.Builder()
                     .isMatch(isMatched)
                     .score(isMatched ? 0.5 : 1)
-                    .matchedIndices(isMatched ? matchedIndices : null)
+                    .matchedIndices(matchedIndices)
                     .build();
         }
 
@@ -243,7 +239,7 @@ public class BitapSearcher implements Options.SearchFunction {
         return new BitapSearchResult.Builder()
                 .isMatch(isMatch)
                 .score(score == 0 ? 0.001 : score)
-                .matchedIndices(isMatch && indexMatches ? getMatchedIndices(matchMask) : null)
+                .matchedIndices(getMatchedIndices(matchMask))
                 .build();
     }
 
