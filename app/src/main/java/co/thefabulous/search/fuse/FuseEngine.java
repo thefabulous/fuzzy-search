@@ -16,7 +16,6 @@ import java.util.Map;
 import co.thefabulous.search.bitap.BitapFactory;
 import co.thefabulous.search.search.data.Indexable;
 
-import static co.thefabulous.search.fuse.Options.GetFunction;
 import static co.thefabulous.search.fuse.Options.SearchFunction;
 import static co.thefabulous.search.fuse.Options.SearchResult;
 import static co.thefabulous.search.search.common.Precondition.checkArgument;
@@ -28,21 +27,14 @@ import static co.thefabulous.search.search.common.Precondition.checkArgument;
 public class FuseEngine<T extends Indexable> implements Engine<T> {
 
     public static final Options DEFAULT_OPTIONS = Options.builder()
-            .id(null)
             .caseSensitive(false)
             .include(new ArrayList<String>())
             .shouldSort(true)
             .searchFunction(new BitapFactory())
             .sortFunction(new Options.SortFunction() {
                 @Override
-                int sort(ExistingResult a, ExistingResult b) {
+                int sort(IndexableSearchResult a, IndexableSearchResult b) {
                     return Double.compare(a.score, b.score);
-                }
-            })
-            .getFunction(new GetFunction() {
-                @Override
-                public void get(Object obj, Object path, Object list) {
-                    //// TODO: 23.02.2017
                 }
             })
             .keys(new ArrayList<String>())
@@ -59,10 +51,11 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     private Collection<T> dataSet;
     @VisibleForTesting List<Options.SearchFunction> tokenSearchers;
     @VisibleForTesting SearchFunction fullSearcher;
-    @VisibleForTesting List<ExistingResult> results;
-    @VisibleForTesting Map<Integer, ExistingResult> resultMap;
+    @VisibleForTesting List<IndexableSearchResult<T>> results;
+    @VisibleForTesting Map<Integer, IndexableSearchResult<T>> resultMap;
 
     public FuseEngine(@NonNull Options options) {
+        //noinspection ConstantConditions
         checkArgument(options != null, "options cannot be null");
         this.options = options;
         mergeOptionsWithDefault(options);
@@ -116,54 +109,14 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         for (T t : dataSet) {
             final List<String> fields = t.getFields();
             for (int j = 0; j < fields.size(); j++) {
-                analyze("", fields.get(j), t, i);
+                analyze(fields.get(j), t, i);
             }
             i++;
         }
-
-//        // Check the first item in the list, if it's a string, then we assume
-//        // that every item in the list is also a string, and thus it's a flattened array.
-//        if (list.get(0) instanceof String) {
-//            // Iterate over every item
-//            for (int i = 0, size = list.size(); i < size; i++) {
-//                analyze("", (String) (list.get(0)), i, i);
-//            }
-//        } else {
-//            keyMap = new ArrayMap<>();
-//            // Otherwise, the first item is an Object (hopefully), and thus the searching
-//            // is done on the values of the keys of each item.
-//            // Iterate over every item
-//            for (int i = 0; i < list.size(); i++) {
-//                Object item = list.get(i);
-//                // Iterate over every key
-//                for (int j = 0, keysLen = options.keys.size(); j < keysLen; j++) {
-//                    String key = options.keys.get(j);
-//                    //// TODO: 23.02.2017 commented out code for keys with weights
-////                    if (typeof key != = 'string'){
-////                        weight = (1 - key.weight) || 1
-////                        this._keyMap[key.name] = {
-////                                weight:weight
-////                        }
-////                        if (key.weight <= 0 || key.weight > 1) {
-////                            throw new Error('Key weight has to be > 0 and <= 1')
-////                        }
-////                        key = key.name
-////                    }else{
-//                    keyMap.put(key, 1.0);
-//                    analyze(key, options.getFunction.get(item, key, new ArrayList<>()), item, i);
-//                }
-//            }
-//        }
     }
 
-//    private void analyze(String key, List<String> texts, Object entity, int index) {
-//        for (String text : texts) {
-//            analyze(key, text, entity, index);
-//        }
-//    }
-
     @VisibleForTesting
-    void analyze(final String key, String text, Object entity, int index) {
+    void analyze(String text, T entity, int index) {
         if (TextUtils.isEmpty(text)) {
             return;
         }
@@ -174,8 +127,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         Double averageScore = null;
 
         final String[] words = text.split(options.tokenSeparator);
-        log("---------\nKey: %s", key);
-
         if (this.options.tokenize) {
             for (SearchFunction tokenSearcher : tokenSearchers) {
                 log("Pattern: %s", tokenSearcher.pattern());
@@ -203,7 +154,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                 if (hasMatchInText) {
                     numTextMatches++;
                 }
-
 //               log("Token scores: %s", termScores); //// TODO: 23.02.2017 log this array
 
                 averageScore = scores.get(0);
@@ -234,7 +184,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         // If a match is found, add the item to <rawResults>, including its score
         if ((exists || mainSearchResult.isMatch()) && checkTextMatches) {
             // Check if the item already exists in our results
-            ExistingResult existingResult = resultMap.get(index);
+            IndexableSearchResult indexableSearchResult = resultMap.get(index);
 
             final SearchResult searchResult = new SearchResult() {
                 @Override
@@ -252,15 +202,15 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                     return mainSearchResult.matchedIndices();
                 }
             };
-            if (existingResult != null) {
+            if (indexableSearchResult != null) {
                 // Use the lowest score
                 // existingResult.score, bitapResult.score
-                existingResult.output.add(searchResult);
+                indexableSearchResult.fieldsResults.add(searchResult);
             } else {
                 // Add it to the raw result list
-                existingResult = new ExistingResult(entity, searchResult);
-                resultMap.put(index, existingResult);
-                results.add(existingResult);
+                indexableSearchResult = new IndexableSearchResult(entity, searchResult);
+                resultMap.put(index, indexableSearchResult);
+                results.add(indexableSearchResult);
             }
         }
     }
@@ -270,7 +220,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
 
         for (int i = 0, size = results.size(); i < size; i++) {
             double totalScore = 0;
-            List<SearchResult> output = results.get(i).output;
+            List<SearchResult> output = results.get(i).fieldsResults;
             int scoreLen = output.size();
 
             double bestScore = 1;
@@ -301,15 +251,15 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         return null;
     }
 
-    public static class ExistingResult {
-        Object entity;
-        List<SearchResult> output;
+    public static class IndexableSearchResult <T>{
+        T entity;
+        List<SearchResult> fieldsResults;
         public double score;
 
-        public ExistingResult(Object entity, SearchResult result) {
+        public IndexableSearchResult(T entity, SearchResult result) {
             this.entity = entity;
-            this.output = new ArrayList<>();
-            this.output.add(result);
+            this.fieldsResults = new ArrayList<>();
+            this.fieldsResults.add(result);
         }
     }
 }

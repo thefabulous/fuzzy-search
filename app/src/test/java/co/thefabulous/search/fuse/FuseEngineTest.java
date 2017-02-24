@@ -55,14 +55,14 @@ public class FuseEngineTest {
             }
         };
         int indexableIndex = 0;
-        fuseEngine.analyze("", indexable.getFields().get(0), null, indexableIndex);
-        fuseEngine.analyze("", indexable.getFields().get(1), null, indexableIndex);
+        fuseEngine.analyze(indexable.getFields().get(0), null, indexableIndex);
+        fuseEngine.analyze(indexable.getFields().get(1), null, indexableIndex);
 
         assertThat(fuseEngine.results.size()).isEqualTo(1);
-        assertThat(fuseEngine.results.get(0).output.size()).isEqualTo(2);
+        assertThat(fuseEngine.results.get(0).fieldsResults.size()).isEqualTo(2);
 
         assertThat(fuseEngine.resultMap.size()).isEqualTo(1);
-        assertThat(fuseEngine.resultMap.get(0).output.size()).isEqualTo(2);
+        assertThat(fuseEngine.resultMap.get(0).fieldsResults.size()).isEqualTo(2);
     }
 
 }

@@ -17,7 +17,6 @@ public class Options {
     String id;
     SearchFunctionFactory searchFunction;
     SortFunction sortFunction;
-    GetFunction getFunction;
     Boolean verbose;
     String tokenSeparator;
 
@@ -35,11 +34,9 @@ public class Options {
     public Integer distance;
     public Integer maxPatternLength;
 
-    public Options(String id, SearchFunctionFactory searchFunction, SortFunction sortFunction, GetFunction getFunction, Boolean verbose, String tokenSeparator, Boolean caseSensitive, List<String> include, Integer minimumCharLength, Boolean shouldSort, Boolean tokenize, Boolean matchAllTokens, Boolean findAllMatches, List<String> keys, Integer location, Float threshold, Integer distance, Integer maxPatternLength) {
-        this.id = id;
+    public Options( SearchFunctionFactory searchFunction, SortFunction sortFunction, Boolean verbose, String tokenSeparator, Boolean caseSensitive, List<String> include, Integer minimumCharLength, Boolean shouldSort, Boolean tokenize, Boolean matchAllTokens, Boolean findAllMatches, List<String> keys, Integer location, Float threshold, Integer distance, Integer maxPatternLength) {
         this.searchFunction = searchFunction;
         this.sortFunction = sortFunction;
-        this.getFunction = getFunction;
         this.verbose = verbose;
         this.tokenSeparator = tokenSeparator;
         this.caseSensitive = caseSensitive;
@@ -70,7 +67,6 @@ public class Options {
                 + "id=" + id + ", "
                 + "searchFunction=" + searchFunction + ", "
                 + "sortFunction=" + sortFunction + ", "
-                + "getFunction=" + getFunction + ", "
                 + "verbose=" + verbose + ", "
                 + "tokenSeparator=" + tokenSeparator + ", "
                 + "caseSensitive=" + caseSensitive + ", "
@@ -98,7 +94,6 @@ public class Options {
             return ((this.id == null) ? (that.id == null) : this.id.equals(that.id))
                     && ((this.searchFunction == null) ? (that.searchFunction == null) : this.searchFunction.equals(that.searchFunction))
                     && ((this.sortFunction == null) ? (that.sortFunction == null) : this.sortFunction.equals(that.sortFunction))
-                    && ((this.getFunction == null) ? (that.getFunction == null) : this.getFunction.equals(that.getFunction))
                     && ((this.verbose == null) ? (that.verbose == null) : this.verbose.equals(that.verbose))
                     && ((this.tokenSeparator == null) ? (that.tokenSeparator == null) : this.tokenSeparator.equals(that.tokenSeparator))
                     && ((this.caseSensitive == null) ? (that.caseSensitive == null) : this.caseSensitive.equals(that.caseSensitive))
@@ -126,8 +121,6 @@ public class Options {
         h ^= (searchFunction == null) ? 0 : this.searchFunction.hashCode();
         h *= 1000003;
         h ^= (sortFunction == null) ? 0 : this.sortFunction.hashCode();
-        h *= 1000003;
-        h ^= (getFunction == null) ? 0 : this.getFunction.hashCode();
         h *= 1000003;
         h ^= (verbose == null) ? 0 : this.verbose.hashCode();
         h *= 1000003;
@@ -160,10 +153,8 @@ public class Options {
     }
 
     public static final class Builder {
-        private String id;
         private SearchFunctionFactory searchFunction;
         private SortFunction sortFunction;
-        private GetFunction getFunction;
         private Boolean verbose;
         private String tokenSeparator;
         private Boolean caseSensitive;
@@ -183,10 +174,8 @@ public class Options {
         }
 
         public Builder(Options source) {
-            this.id = source.id;
             this.searchFunction = source.searchFunction;
             this.sortFunction = source.sortFunction;
-            this.getFunction = source.getFunction;
             this.verbose = source.verbose;
             this.tokenSeparator = source.tokenSeparator;
             this.caseSensitive = source.caseSensitive;
@@ -203,11 +192,6 @@ public class Options {
             this.maxPatternLength = source.maxPatternLength;
         }
 
-        public Builder id(@Nullable String id) {
-            this.id = id;
-            return this;
-        }
-
         public Builder searchFunction(@Nullable SearchFunctionFactory searchFunction) {
             this.searchFunction = searchFunction;
             return this;
@@ -215,11 +199,6 @@ public class Options {
 
         public Builder sortFunction(@Nullable SortFunction sortFunction) {
             this.sortFunction = sortFunction;
-            return this;
-        }
-
-        public Builder getFunction(@Nullable GetFunction getFunction) {
-            this.getFunction = getFunction;
             return this;
         }
 
@@ -295,10 +274,8 @@ public class Options {
 
         public Options build() {
             return new Options(
-                    this.id,
                     this.searchFunction,
                     this.sortFunction,
-                    this.getFunction,
                     this.verbose,
                     this.tokenSeparator,
                     this.caseSensitive,
@@ -334,17 +311,12 @@ public class Options {
         SearchFunction getSearchFunction(String pattern, Options options);
     }
 
-    static abstract class SortFunction implements Comparator<FuseEngine.ExistingResult> {
-        abstract int sort(FuseEngine.ExistingResult a, FuseEngine.ExistingResult b);
+    static abstract class SortFunction implements Comparator<FuseEngine.IndexableSearchResult> {
+        abstract int sort(FuseEngine.IndexableSearchResult a, FuseEngine.IndexableSearchResult b);
 
         @Override
-        public int compare(FuseEngine.ExistingResult a, FuseEngine.ExistingResult b) {
+        public int compare(FuseEngine.IndexableSearchResult a, FuseEngine.IndexableSearchResult b) {
             return sort(a, b);
         }
     }
-
-    interface GetFunction {
-        void get(Object obj, Object path, Object list); // TODO: 23.02.2017 determine types
-    }
-
 }
