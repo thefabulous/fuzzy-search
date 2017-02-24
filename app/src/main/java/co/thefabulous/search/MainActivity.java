@@ -9,7 +9,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import co.thefabulous.search.fuse.Engine;
+import co.thefabulous.search.engine.Engine;
 import co.thefabulous.search.fuse.FuseEngine;
 import co.thefabulous.search.fuse.Options;
 
@@ -45,10 +45,11 @@ public class MainActivity extends AppCompatActivity {
 
         engine = new FuseEngine<>(Options.builder()
                 .tokenize(true)
+                .maxPatternLength(50)
                 .matchAllTokens(false)
                 .threshold(0.4f)
                 .build());
-        engine.addAll(habits);
+        engine.useDataSet(habits);
 
         EditText searchEditText = (EditText) findViewById(R.id.search_edit_text);
         searchEditText.addTextChangedListener(new TextWatcher() {

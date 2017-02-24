@@ -14,7 +14,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import co.thefabulous.search.fuse.Options;
-import co.thefabulous.search.fuse.data.ScoredObject;
+import co.thefabulous.search.engine.ScoredObject;
 
 public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
     final String prefix = "<font color=\'#E91E63\'><b>";

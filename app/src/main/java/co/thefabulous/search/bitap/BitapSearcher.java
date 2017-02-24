@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import co.thefabulous.search.fuse.Options;
+import co.thefabulous.search.util.WordTokenizer;
 
 public class BitapSearcher implements Options.SearchFunction {
     private final String pattern;

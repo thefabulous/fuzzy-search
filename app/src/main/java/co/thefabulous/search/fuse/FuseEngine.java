@@ -14,13 +14,15 @@ import java.util.List;
 import java.util.Map;
 
 import co.thefabulous.search.bitap.BitapFactory;
-import co.thefabulous.search.bitap.WordTokenizer;
-import co.thefabulous.search.fuse.data.Indexable;
-import co.thefabulous.search.fuse.data.ScoredObject;
+import co.thefabulous.search.engine.Engine;
+import co.thefabulous.search.engine.Indexable;
+import co.thefabulous.search.engine.ScoredObject;
+import co.thefabulous.search.util.WordTokenizer;
 
 import static co.thefabulous.search.fuse.Options.SearchFunction;
 import static co.thefabulous.search.fuse.Options.SearchResult;
 import static co.thefabulous.search.util.Precondition.checkArgument;
+import static co.thefabulous.search.util.Precondition.checkState;
 
 /**
  * Created by Bartosz Lipinski
@@ -46,35 +48,17 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             .findAllMatches(false)
             .build();
 
-    @NonNull
     private final Options options;
+    private Collection<T> dataSet;
     @VisibleForTesting List<Options.SearchFunction> tokenSearchers;
     @VisibleForTesting SearchFunction fullSearcher;
     @VisibleForTesting List<ScoredObject<T>> results;
     @VisibleForTesting Map<Integer, ScoredObject<T>> resultMap;
-    private Collection<T> dataSet;
 
     public FuseEngine(@NonNull Options options) {
         //noinspection ConstantConditions
-        checkArgument(options != null, "options cannot be null");
-        this.options = options;
-        mergeOptionsWithDefault(options);
-    }
-
-    private void mergeOptionsWithDefault(Options options) {
-        options.searchFunction = options.searchFunction != null ? options.searchFunction : DEFAULT_OPTIONS.searchFunction;
-        options.sortFunction = options.sortFunction != null ? options.sortFunction : DEFAULT_OPTIONS.sortFunction;
-        options.verbose = options.verbose != null ? options.verbose : DEFAULT_OPTIONS.verbose;
-        options.caseSensitive = options.caseSensitive != null ? options.caseSensitive : DEFAULT_OPTIONS.caseSensitive;
-        options.minimumCharLength = options.minimumCharLength != null ? options.minimumCharLength : DEFAULT_OPTIONS.minimumCharLength;
-        options.shouldSort = options.shouldSort != null ? options.shouldSort : DEFAULT_OPTIONS.shouldSort;
-        options.tokenize = options.tokenize != null ? options.tokenize : DEFAULT_OPTIONS.tokenize;
-        options.matchAllTokens = options.matchAllTokens != null ? options.matchAllTokens : DEFAULT_OPTIONS.matchAllTokens;
-        options.findAllMatches = options.findAllMatches != null ? options.findAllMatches : DEFAULT_OPTIONS.findAllMatches;
-        options.location = options.location != null ? options.location : DEFAULT_OPTIONS.location;
-        options.threshold = options.threshold != null ? options.threshold : DEFAULT_OPTIONS.threshold;
-        options.distance = options.distance != null ? options.distance : DEFAULT_OPTIONS.distance;
-        options.maxPatternLength = options.maxPatternLength != null ? options.maxPatternLength : DEFAULT_OPTIONS.maxPatternLength;
+        checkArgument(options != null, "options cannot be null"); // if bypassed the @NonNull
+        this.options = options.mergeWith(DEFAULT_OPTIONS);
     }
 
     private void log(String stringToFormat, Object... args) {
@@ -84,14 +68,15 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     }
 
     @Override
-    public boolean addAll(Collection<T> dataSet) {
+    public synchronized void useDataSet(Collection<T> dataSet) {
         this.dataSet = dataSet;
-        return true;
     }
 
     @Override
-    public List<ScoredObject<T>> search(String pattern) {
+    public synchronized List<ScoredObject<T>> search(String pattern) {
         log("\nSearch term: %s\n", pattern);
+
+        checkState(dataSet != null, "Be sure to set the DataSet before running a search.");
 
         results = new ArrayList<>();
         resultMap = new ArrayMap<>();
@@ -116,7 +101,8 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         fullSearcher = options.searchFunction.getSearchFunction(pattern, options);
     }
 
-    private void startSearch() {
+    @VisibleForTesting
+    void startSearch() {
         int i = 0;
         for (T t : dataSet) {
             final List<String> fields = t.getFields();
@@ -233,6 +219,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         }
     }
 
+    @VisibleForTesting
     void computeScore() {
         log("\n\nComputing score:\n");
 
@@ -247,7 +234,8 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         }
     }
 
-    private void sort() {
+    @VisibleForTesting
+    void sort() {
         if (options.shouldSort) {
             log("\n\nSorting");
             Collections.sort(results, options.sortFunction);

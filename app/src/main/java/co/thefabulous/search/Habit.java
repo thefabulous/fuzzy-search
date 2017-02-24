@@ -4,7 +4,7 @@ package co.thefabulous.search;
 import java.util.Arrays;
 import java.util.List;
 
-import co.thefabulous.search.fuse.data.Indexable;
+import co.thefabulous.search.engine.Indexable;
 
 public class Habit implements Indexable {
     String title;

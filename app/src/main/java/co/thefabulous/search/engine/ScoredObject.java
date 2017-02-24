@@ -1,4 +1,4 @@
-package co.thefabulous.search.fuse.data;
+package co.thefabulous.search.engine;
 
 import android.support.v4.util.ArrayMap;
 

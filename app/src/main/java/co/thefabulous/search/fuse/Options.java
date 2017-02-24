@@ -6,7 +6,7 @@ import android.support.v4.util.Pair;
 import java.util.Comparator;
 import java.util.List;
 
-import co.thefabulous.search.fuse.data.ScoredObject;
+import co.thefabulous.search.engine.ScoredObject;
 
 /**
  * Created by Bartosz Lipinski
@@ -51,8 +51,25 @@ public class Options {
         return new Builder();
     }
 
-    public static Builder builder(Options options) {
+    static Builder builder(Options options) {
         return new Builder(options);
+    }
+
+    public Options mergeWith(Options other){
+        searchFunction = searchFunction != null ? searchFunction : other.searchFunction;
+        sortFunction = sortFunction != null ? sortFunction : other.sortFunction;
+        verbose = verbose != null ? verbose : other.verbose;
+        caseSensitive = caseSensitive != null ? caseSensitive : other.caseSensitive;
+        minimumCharLength = minimumCharLength != null ? minimumCharLength : other.minimumCharLength;
+        shouldSort = shouldSort != null ? shouldSort : other.shouldSort;
+        tokenize = tokenize != null ? tokenize : other.tokenize;
+        matchAllTokens = matchAllTokens != null ? matchAllTokens : other.matchAllTokens;
+        findAllMatches = findAllMatches != null ? findAllMatches : other.findAllMatches;
+        location = location != null ? location : other.location;
+        threshold = threshold != null ? threshold : other.threshold;
+        distance = distance != null ? distance : other.distance;
+        maxPatternLength = maxPatternLength != null ? maxPatternLength : other.maxPatternLength;
+        return this;
     }
 
     @Override

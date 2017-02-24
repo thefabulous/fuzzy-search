@@ -12,7 +12,7 @@ public class BitapSearcherTest {
     @Test
     public void search() throws Exception {
         BitapSearcher bitapSearcher = new BitapSearcher("Clench your Fists or Squeeze your Hands And Toto", FuseEngine.DEFAULT_OPTIONS);
-        Options.SearchResult searchResult = bitapSearcher.search("Clench your Fists or Squeeze your Hands", false);
+        Options.SearchResult searchResult = bitapSearcher.search("Clench your Fists or Squeeze your Hands");
 
         assertThat(searchResult.isMatch(), is(true));
     }
