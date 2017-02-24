@@ -77,7 +77,7 @@ public class ScoredObject<T extends Indexable> implements Comparable<ScoredObjec
     }
 
     private boolean fieldsEqualsWith(Map<Integer, SearchResult> otherFieldsSearchResults) {
-        if (fieldsSearchResults.size() != otherFieldsSearchResults.size()) {
+        if (otherFieldsSearchResults == null || fieldsSearchResults.size() != otherFieldsSearchResults.size()) {
             return false;
         }
         for (Integer fieldIndex : fieldsSearchResults.keySet()) {

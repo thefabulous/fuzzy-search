@@ -220,7 +220,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                 totalScore += value.score();
             }
             results.get(i).setScore(totalScore / (double) output.size());
-            log(results.get(i).toString());
         }
     }
 

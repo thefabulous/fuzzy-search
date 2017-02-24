@@ -56,7 +56,7 @@ public class BitapSearchResult implements SearchResult {
     }
 
     private boolean indicesEqualWith(List<ImmutablePair<Integer, Integer>> otherIndicesList) {
-        if (matchedIndices.size() != otherIndicesList.size()) {
+        if (otherIndicesList == null || matchedIndices.size() != otherIndicesList.size()) {
             return false;
         }
         for (int i = 0; i < matchedIndices.size(); i++) {
@@ -65,7 +65,7 @@ public class BitapSearchResult implements SearchResult {
             if (otherIndices == null) { //couldn't find indices for this i
                 return false;
             }
-            if (!thisIndices.equals(otherIndices)){
+            if (!thisIndices.equals(otherIndices)) {
                 return false;
             }
         }
