@@ -103,7 +103,7 @@ public class BitapSearcher implements SearchFunction {
         }
 
         // When pattern length is greater than the machine word length, just do a a regex comparison
-        if (this.patternLen > maxPatternLength) {
+        if (this.patternLen > options.maxPatternLength) {
             WordTokenizer wordTokenizer = new WordTokenizer();
             HashSet<String> words = new HashSet<>(wordTokenizer.apply(pattern));
             StringBuilder sb = new StringBuilder();
@@ -182,18 +182,20 @@ public class BitapSearcher implements SearchFunction {
             // at this error level.
             binMin = 0;
             binMid = binMax;
+
             while (binMin < binMid) {
-                if (this.bitapScore(i, location + binMid) <= threshold) {
+                if (bitapScore(i, location + binMid) <= threshold) {
                     binMin = binMid;
                 } else {
                     binMax = binMid;
                 }
-                binMid = (int) Math.floor((binMax - binMin) / 2 + binMin);
+                binMid = (binMax - binMin) / 2 + binMin;
             }
 
             // Use the result from this iteration as the maximum for the next.
             binMax = binMid;
             start = Math.max(1, location - binMid + 1);
+
             if (findAllMatches) {
                 finish = textLen;
             } else {
@@ -206,10 +208,11 @@ public class BitapSearcher implements SearchFunction {
             bitArr[finish + 1] = (1 << i) - 1;
 
             for (j = finish; j >= start; j--) {
-                if (j - 1 < text.length() && this.patternAlphabet.containsKey(text.charAt(j - 1))) {
-                    charMatch = this.patternAlphabet.get(text.charAt(j - 1));
-                } else {
+                if (text.length() <= j - 1 || !patternAlphabet.containsKey(text.charAt(j - 1))) {
+                    // Out of range.
                     charMatch = 0;
+                } else {
+                    charMatch = patternAlphabet.get(text.charAt(j - 1));
                 }
 
                 if (charMatch > 0) {
@@ -221,9 +224,11 @@ public class BitapSearcher implements SearchFunction {
                     bitArr[j] = ((bitArr[j + 1] << 1) | 1) & charMatch;
                 } else {
                     // Subsequent passes: fuzzy match.
-                    bitArr[j] = ((bitArr[j + 1] << 1) | 1) & charMatch | (((lastBitArr[j + 1] | lastBitArr[j]) << 1) | 1) | lastBitArr[j + 1];
+                    bitArr[j] = (((bitArr[j + 1] << 1) | 1) & charMatch)
+                            | (((lastBitArr[j + 1] | lastBitArr[j]) << 1) | 1) | lastBitArr[j + 1];
                 }
-                if ((bitArr[j] & this.matchmask) > 0) {
+
+                if ((bitArr[j] & matchmask) != 0) {
                     score = this.bitapScore(i, j - 1);
 
                     // This match will almost certainly be better than any existing match.

@@ -46,10 +46,6 @@ public class MainActivity extends AppCompatActivity {
         listview.setAdapter(new HabitAdapter(this, habits));
 
         engine = new FuseEngine<>(Options.builder()
-                .tokenize(true)
-                .maxPatternLength(50)
-                .matchAllTokens(false)
-                .threshold(0.4f)
                 .build());
         engine.useDataSet(habits);
 
@@ -78,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             if (Util.isNullOrEmpty(searchPattern)) {
                 listview.setAdapter(new HabitAdapter(this, habits));
             } else {
-                listview.setAdapter(new ScoredHabitAdapter(this, engine.search(searchPattern)));
+                listview.setAdapter(new ScoredHabitAdapter(this, searchPattern, engine.search(searchPattern)));
             }
         }
     }

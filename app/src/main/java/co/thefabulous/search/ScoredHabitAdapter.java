@@ -19,9 +19,11 @@ import co.thefabulous.search.util.ImmutablePair;
 public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
     final String prefix = "<font color=\'#E91E63\'><b>";
     final String suffix = "</b></font>";
+    private final String searchPattern;
 
-    public ScoredHabitAdapter(Context context, List<ScoredObject<Habit>> habits) {
+    public ScoredHabitAdapter(Context context, String searchPattern, List<ScoredObject<Habit>> habits) {
         super(context, 0, habits);
+        this.searchPattern = searchPattern;
     }
 
     @Override
@@ -58,12 +60,18 @@ public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
 
     private String getHighlightedString(SearchResult searchResult, String text) {
         List<ImmutablePair<Integer, Integer>> matchedIndices = searchResult.matchedIndices();
-//        Collections.sort(matchedIndices, new Comparator<Pair<Integer, Integer>>() {
-//            @Override
-//            public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
-//                return Integer.compare(o2.second - o2.first, o1.second - o1.first);
-//            }
-//        });
+
+//        if (searchPattern.length() > 1) {
+//            Collections.sort(matchedIndices, new Comparator<ImmutablePair<Integer, Integer>>() {
+//                @Override
+//                public int compare(ImmutablePair<Integer, Integer> o1, ImmutablePair<Integer, Integer> o2) {
+//                    return Util.compare(o2.second - o2.first, o1.second - o1.first);
+//                }
+//            });
+//
+//            matchedIndices = Collections.singletonList(matchedIndices.get(0));
+//        }
+
 
         int offset = 0;
         for (ImmutablePair<Integer, Integer> machIndexes : matchedIndices) {
