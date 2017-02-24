@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import co.thefabulous.search.engine.SearchResult;
 import co.thefabulous.search.fuse.Options;
 import co.thefabulous.search.engine.ScoredObject;
 
@@ -45,7 +46,7 @@ public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
     }
 
     private void setText(ScoredObject<Habit> item, TextView textView, int index) {
-        Options.SearchResult searchResultTitle = item.getFieldsSearchResults().get(index);
+        SearchResult searchResultTitle = item.getFieldsSearchResults().get(index);
         if (searchResultTitle != null
                 && searchResultTitle.matchedIndices() != null
                 && !searchResultTitle.matchedIndices().isEmpty()) {
@@ -56,7 +57,7 @@ public class ScoredHabitAdapter extends ArrayAdapter<ScoredObject<Habit>> {
         }
     }
 
-    private String getHighlightedString(Options.SearchResult searchResult, String text) {
+    private String getHighlightedString(SearchResult searchResult, String text) {
         List<Pair<Integer, Integer>> matchedIndices = searchResult.matchedIndices();
 //        Collections.sort(matchedIndices, new Comparator<Pair<Integer, Integer>>() {
 //            @Override

@@ -6,9 +6,9 @@ import android.support.v4.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.thefabulous.search.fuse.Options;
+import co.thefabulous.search.engine.SearchResult;
 
-public class BitapSearchResult implements Options.SearchResult {
+public class BitapSearchResult implements SearchResult {
     boolean isMatch;
     double score;
     List<Pair<Integer, Integer>> matchedIndices;

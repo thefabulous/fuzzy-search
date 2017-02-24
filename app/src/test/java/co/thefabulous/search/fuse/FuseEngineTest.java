@@ -13,6 +13,7 @@ import java.util.List;
 import co.thefabulous.search.Habit;
 import co.thefabulous.search.bitap.BitapSearcher;
 import co.thefabulous.search.engine.Indexable;
+import co.thefabulous.search.engine.SearchResult;
 
 import static co.thefabulous.search.fuse.FuseEngine.DEFAULT_OPTIONS;
 import static com.google.common.truth.Truth.assertThat;
@@ -77,7 +78,7 @@ public class FuseEngineTest {
         final String text = "Clench your Fists or Squeeze your Hands";
 
         BitapSearcher bitapSearcher = new BitapSearcher(pattern, FuseEngine.DEFAULT_OPTIONS);
-        Options.SearchResult searchResult = bitapSearcher.search(text);
+        SearchResult searchResult = bitapSearcher.search(text);
 
         FuseEngine<Habit> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
                 .tokenize(false).build());

@@ -1,12 +1,11 @@
 package co.thefabulous.search.fuse;
 
-import android.support.annotation.Nullable;
-import android.support.v4.util.Pair;
-
 import java.util.Comparator;
-import java.util.List;
+
+import javax.annotation.Nullable;
 
 import co.thefabulous.search.engine.ScoredObject;
+import co.thefabulous.search.engine.SearchFunction;
 
 /**
  * Created by Bartosz Lipinski
@@ -55,7 +54,7 @@ public class Options {
         return new Builder(options);
     }
 
-    public Options mergeWith(Options other){
+    public Options mergeWith(Options other) {
         searchFunction = searchFunction != null ? searchFunction : other.searchFunction;
         sortFunction = sortFunction != null ? sortFunction : other.sortFunction;
         verbose = verbose != null ? verbose : other.verbose;
@@ -262,20 +261,6 @@ public class Options {
                     this.distance,
                     this.maxPatternLength);
         }
-    }
-
-    public interface SearchResult {
-        boolean isMatch();
-
-        double score();
-
-        List<Pair<Integer, Integer>> matchedIndices();
-    }
-
-    public interface SearchFunction {
-        SearchResult search(String text);
-
-        String pattern();
     }
 
     public interface SearchFunctionFactory {

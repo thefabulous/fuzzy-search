@@ -1,6 +1,5 @@
 package co.thefabulous.search.bitap;
 
-
 import android.support.v4.util.Pair;
 
 import java.util.ArrayList;
@@ -12,10 +11,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import co.thefabulous.search.engine.SearchFunction;
+import co.thefabulous.search.engine.SearchResult;
 import co.thefabulous.search.fuse.Options;
 import co.thefabulous.search.util.WordTokenizer;
 
-public class BitapSearcher implements Options.SearchFunction {
+public class BitapSearcher implements SearchFunction {
     private final String pattern;
     private final int patternLen;
     // Approximately where in the text is the pattern expected to be found?
@@ -67,7 +68,7 @@ public class BitapSearcher implements Options.SearchFunction {
     }
 
     @Override
-    public Options.SearchResult search(String text) {
+    public SearchResult search(String text) {
         Options options = this.options;
         int i;
         int j;

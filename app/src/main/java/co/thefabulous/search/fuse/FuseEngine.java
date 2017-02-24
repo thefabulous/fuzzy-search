@@ -13,10 +13,10 @@ import co.thefabulous.search.bitap.BitapFactory;
 import co.thefabulous.search.engine.Engine;
 import co.thefabulous.search.engine.Indexable;
 import co.thefabulous.search.engine.ScoredObject;
+import co.thefabulous.search.engine.SearchFunction;
+import co.thefabulous.search.engine.SearchResult;
 import co.thefabulous.search.util.WordTokenizer;
 
-import static co.thefabulous.search.fuse.Options.SearchFunction;
-import static co.thefabulous.search.fuse.Options.SearchResult;
 import static co.thefabulous.search.util.Precondition.checkArgument;
 import static co.thefabulous.search.util.Precondition.checkState;
 
@@ -46,7 +46,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
 
     private final Options options;
     private Collection<T> dataSet;
-    List<Options.SearchFunction> tokenSearchers;
+    List<SearchFunction> tokenSearchers;
     SearchFunction fullSearcher;
     List<ScoredObject<T>> results;
     Map<Integer, ScoredObject<T>> resultMap;

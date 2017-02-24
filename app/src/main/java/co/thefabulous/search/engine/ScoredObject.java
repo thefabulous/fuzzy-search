@@ -5,8 +5,6 @@ import android.support.v4.util.ArrayMap;
 import java.util.Map;
 import java.util.Objects;
 
-import co.thefabulous.search.fuse.Options;
-
 import static co.thefabulous.search.util.Precondition.checkPointer;
 
 /**
@@ -14,7 +12,7 @@ import static co.thefabulous.search.util.Precondition.checkPointer;
  */
 public class ScoredObject<T extends Indexable> implements Comparable<ScoredObject> {
     private final T object;
-    private final Map<Integer, Options.SearchResult> fieldsSearchResults; //keys are indices of fields
+    private final Map<Integer, SearchResult> fieldsSearchResults; //keys are indices of fields
     private Double score;
     private boolean hasMatches;
 
@@ -32,11 +30,11 @@ public class ScoredObject<T extends Indexable> implements Comparable<ScoredObjec
         return this;
     }
 
-    public Map<Integer, Options.SearchResult> getFieldsSearchResults() {
+    public Map<Integer, SearchResult> getFieldsSearchResults() {
         return fieldsSearchResults;
     }
 
-    public ScoredObject addSearchResult(int fieldIndex, Options.SearchResult searchResult) {
+    public ScoredObject addSearchResult(int fieldIndex, SearchResult searchResult) {
         fieldsSearchResults.put(fieldIndex, searchResult);
         return this;
     }
