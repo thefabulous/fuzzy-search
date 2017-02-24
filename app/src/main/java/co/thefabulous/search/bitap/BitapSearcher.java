@@ -11,7 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import co.thefabulous.search.fuse.Options;
-import co.thefabulous.search.search.text.analyze.tokenize.WordTokenizer;
 
 public class BitapSearcher implements Options.SearchFunction {
     private final String pattern;
@@ -65,7 +64,7 @@ public class BitapSearcher implements Options.SearchFunction {
     }
 
     @Override
-    public Options.SearchResult search(String text) {
+    public Options.SearchResult search(String text, boolean indexMatches) {
         Options options = this.options;
         int i;
         int j;
@@ -83,7 +82,7 @@ public class BitapSearcher implements Options.SearchFunction {
         int charMatch;
         double score;
         ArrayList<Integer> locations;
-        boolean isMatched;
+        boolean isMatched = false;
         int[] matchMask;
         int matchesLen;
         String match;
@@ -95,7 +94,7 @@ public class BitapSearcher implements Options.SearchFunction {
             return new BitapSearchResult.Builder()
                     .isMatch(true)
                     .score(0)
-                    .matchedIndice(new Pair<>(0, text.length() - 1))
+                    .matchedIndice(indexMatches ? new Pair<>(0, text.length() - 1) : null)
                     .build();
         }
 
@@ -115,12 +114,16 @@ public class BitapSearcher implements Options.SearchFunction {
 
             ArrayList<Pair<Integer, Integer>> matchedIndices = new ArrayList<>();
             while (matcher.find()) {
+                isMatched = true;
+
+                if (!indexMatches)
+                    break;
+
                 match = matcher.group(0);
                 matchedIndices.add(new Pair<>(text.indexOf(match), text.indexOf(match) + match.length() - 1));
             }
 
             // TODO: revisit this score
-            isMatched = !matchedIndices.isEmpty();
             return new BitapSearchResult.Builder()
                     .isMatch(isMatched)
                     .score(isMatched ? 0.5 : 1)
@@ -240,7 +243,7 @@ public class BitapSearcher implements Options.SearchFunction {
         return new BitapSearchResult.Builder()
                 .isMatch(isMatch)
                 .score(score == 0 ? 0.001 : score)
-                .matchedIndices(isMatch ? getMatchedIndices(matchMask) : null)
+                .matchedIndices(isMatch && indexMatches ? getMatchedIndices(matchMask) : null)
                 .build();
     }
 

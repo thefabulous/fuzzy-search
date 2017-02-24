@@ -9,15 +9,12 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import co.thefabulous.search.fuse.Engine;
-import co.thefabulous.search.search.AutocompleteEngine;
-
 
 public class MainActivity extends AppCompatActivity {
 
     private ListView listview;
     private ArrayList<Habit> habits;
-    private Engine<Habit> engine;
+//    private Engine<Habit> engine;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +39,11 @@ public class MainActivity extends AppCompatActivity {
 
         listview.setAdapter(new HabitAdapter(this, habits));
 
-        engine = new AutocompleteEngine.Builder<Habit>()
-                .setIndex(new SampleAdapter())
-                .setAnalyzer(new SampleAnalyzer())
-                .build();
-        engine.addAll(habits);
+//        engine = new AutocompleteEngine.Builder<Habit>()
+//                .setIndex(new SampleAdapter())
+//                .setAnalyzer(new SampleAnalyzer())
+//                .build();
+//        engine.addAll(habits);
 
         EditText searchEditText = (EditText) findViewById(R.id.search_edit_text);
         searchEditText.addTextChangedListener(new TextWatcher() {
@@ -71,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         if (s == null || s.length() == 0) {
             listview.setAdapter(new HabitAdapter(this, habits));
         } else {
-            listview.setAdapter(new HabitAdapter(this, engine.search(s)));
+//            listview.setAdapter(new HabitAdapter(this, engine.search(s)));
         }
     }
 }

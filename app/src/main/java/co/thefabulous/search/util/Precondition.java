@@ -1,4 +1,4 @@
-package co.thefabulous.search.search.common;
+package co.thefabulous.search.util;
 
 import java.util.NoSuchElementException;
 

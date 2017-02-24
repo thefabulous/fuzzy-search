@@ -1,4 +1,4 @@
-package co.thefabulous.search.search.data;
+package co.thefabulous.search.fuse.data;
 
 import java.util.List;
 

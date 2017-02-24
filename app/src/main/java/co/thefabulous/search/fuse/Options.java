@@ -325,7 +325,7 @@ public class Options {
     }
 
     public interface SearchFunction {
-        SearchResult search(String text);
+        SearchResult search(String text, boolean indexMatches);
 
         String pattern();
     }

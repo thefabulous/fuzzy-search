@@ -14,18 +14,19 @@ import java.util.List;
 import java.util.Map;
 
 import co.thefabulous.search.bitap.BitapFactory;
-import co.thefabulous.search.search.data.Indexable;
+import co.thefabulous.search.fuse.data.Indexable;
+import co.thefabulous.search.fuse.data.ScoredObject;
 
 import static co.thefabulous.search.fuse.Options.GetFunction;
 import static co.thefabulous.search.fuse.Options.SearchFunction;
 import static co.thefabulous.search.fuse.Options.SearchResult;
-import static co.thefabulous.search.search.common.Precondition.checkArgument;
+import static co.thefabulous.search.util.Precondition.checkArgument;
 
 /**
  * Created by Bartosz Lipinski
  * 23.02.2017
  */
-public class FuseEngine<T extends Indexable> implements Engine<T> {
+public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implements Engine<T,P> {
 
     public static final Options DEFAULT_OPTIONS = Options.builder()
             .id(null)
@@ -86,7 +87,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     }
 
     @Override
-    public List<T> search(String pattern) {
+    public List<P> search(String pattern) {
         log("\nSearch term: %s\n", pattern);
 
         results = new ArrayList<>();
@@ -184,7 +185,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                 boolean hasMatchInText = false;
 
                 for (String word : words) {
-                    SearchResult tokenSearchResult = tokenSearcher.search(word);
+                    SearchResult tokenSearchResult = tokenSearcher.search(word, false);
                     Map<String, Double> obj = new ArrayMap<>();
                     if (tokenSearchResult.isMatch()) {
                         obj.put(word, tokenSearchResult.score());
@@ -217,7 +218,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
             }
         }
 
-        final SearchResult mainSearchResult = fullSearcher.search(text);
+        final SearchResult mainSearchResult = fullSearcher.search(text, true);
         log("Full text score: %f", mainSearchResult.score());
 
         final double finalScore = (averageScore != null) ?
@@ -296,7 +297,7 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         }
     }
 
-    private List<T> format() {
+    private List<P> format() {
         // TODO: 23.02.2017
         return null;
     }
