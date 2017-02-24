@@ -3,7 +3,6 @@ package co.thefabulous.search.engine;
 import android.support.v4.util.ArrayMap;
 
 import java.util.Map;
-import java.util.Objects;
 
 import static co.thefabulous.search.util.Precondition.checkPointer;
 
@@ -64,27 +63,42 @@ public class ScoredObject<T extends Indexable> implements Comparable<ScoredObjec
         return Double.compare(other.score, score);
     }
 
-    private boolean equals(ScoredObject<?> other) {
-        assert other != null;
-        return Objects.equals(object, other.object)
-                && Objects.equals(hasMatches, other.hasMatches)
-                && Objects.equals(score, other.score)
-                && Objects.equals(fieldsSearchResults, other.fieldsSearchResults);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ScoredObject<?> that = (ScoredObject<?>) o;
+
+        if (hasMatches != that.hasMatches) return false;
+        if (!object.equals(that.object)) return false;
+        if (!equals(that.getFieldsSearchResults())) return false;
+        return score != null ? score.equals(that.score) : that.score == null;
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (other == this) {
-            return true;
-        }
-        if (!(other instanceof ScoredObject)) {
+    private boolean equals(Map<Integer, SearchResult> otherFieldsSearchResults) {
+        if (fieldsSearchResults.size() != otherFieldsSearchResults.size()) {
             return false;
         }
-        return equals((ScoredObject<?>) other);
+        for (Integer fieldIndex : fieldsSearchResults.keySet()) {
+            final SearchResult thisSearchResult = fieldsSearchResults.get(fieldIndex);
+            final SearchResult otherSearchResult = otherFieldsSearchResults.get(fieldIndex);
+            if (otherSearchResult == null) { //couldn't find searchResults for this fieldIndex
+                return false;
+            }
+            if (!thisSearchResult.equals(otherSearchResult)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(object, hasMatches, score, fieldsSearchResults);
+        int result = object.hashCode();
+        result = 31 * result + fieldsSearchResults.hashCode();
+        result = 31 * result + (score != null ? score.hashCode() : 0);
+        result = 31 * result + (hasMatches ? 1 : 0);
+        return result;
     }
 }
