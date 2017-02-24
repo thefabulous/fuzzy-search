@@ -1,6 +1,5 @@
 package co.thefabulous.search.bitap;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +30,46 @@ public class BitapSearchResult implements SearchResult {
     @Override
     public List<ImmutablePair<Integer, Integer>> matchedIndices() {
         return matchedIndices;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BitapSearchResult that = (BitapSearchResult) o;
+
+        if (isMatch != that.isMatch) return false;
+        if (Double.compare(that.score, score) != 0) return false;
+        return matchedIndices != null ? indicesEqualWith(that.matchedIndices) : that.matchedIndices == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = (isMatch ? 1 : 0);
+        temp = Double.doubleToLongBits(score);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (matchedIndices != null ? matchedIndices.hashCode() : 0);
+        return result;
+    }
+
+    private boolean indicesEqualWith(List<ImmutablePair<Integer, Integer>> otherIndicesList) {
+        if (matchedIndices.size() != otherIndicesList.size()) {
+            return false;
+        }
+        for (int i = 0; i < matchedIndices.size(); i++) {
+            final ImmutablePair<Integer, Integer> thisIndices = matchedIndices.get(i);
+            final ImmutablePair<Integer, Integer> otherIndices = otherIndicesList.get(i);
+            if (otherIndices == null) { //couldn't find indices for this i
+                return false;
+            }
+            if (!thisIndices.equals(otherIndices)){
+                return false;
+            }
+        }
+        return true;
     }
 
     public static final class Builder {

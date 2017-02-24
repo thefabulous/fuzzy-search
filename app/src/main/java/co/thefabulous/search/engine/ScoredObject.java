@@ -72,11 +72,11 @@ public class ScoredObject<T extends Indexable> implements Comparable<ScoredObjec
 
         if (hasMatches != that.hasMatches) return false;
         if (!object.equals(that.object)) return false;
-        if (!equals(that.getFieldsSearchResults())) return false;
+        if (!fieldsEqualsWith(that.getFieldsSearchResults())) return false;
         return score != null ? score.equals(that.score) : that.score == null;
     }
 
-    private boolean equals(Map<Integer, SearchResult> otherFieldsSearchResults) {
+    private boolean fieldsEqualsWith(Map<Integer, SearchResult> otherFieldsSearchResults) {
         if (fieldsSearchResults.size() != otherFieldsSearchResults.size()) {
             return false;
         }
