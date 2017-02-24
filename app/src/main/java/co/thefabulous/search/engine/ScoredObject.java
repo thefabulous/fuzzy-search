@@ -13,20 +13,10 @@ public class ScoredObject<T extends Indexable> implements Comparable<ScoredObjec
     private final T object;
     private final Map<Integer, SearchResult> fieldsSearchResults; //keys are indices of fields
     private Double score;
-    private boolean hasMatches;
 
     public ScoredObject(T object) {
         this.object = object;
         fieldsSearchResults = new ArrayMap<>();
-    }
-
-    public boolean hasMatches() {
-        return hasMatches;
-    }
-
-    public ScoredObject setHasMatches(boolean hasMatches) {
-        this.hasMatches = hasMatches;
-        return this;
     }
 
     public Map<Integer, SearchResult> getFieldsSearchResults() {
@@ -70,7 +60,6 @@ public class ScoredObject<T extends Indexable> implements Comparable<ScoredObjec
 
         ScoredObject<?> that = (ScoredObject<?>) o;
 
-        if (hasMatches != that.hasMatches) return false;
         if (!object.equals(that.object)) return false;
         if (!fieldsEqualsWith(that.getFieldsSearchResults())) return false;
         return score != null ? score.equals(that.score) : that.score == null;
@@ -98,7 +87,6 @@ public class ScoredObject<T extends Indexable> implements Comparable<ScoredObjec
         int result = object.hashCode();
         result = 31 * result + fieldsSearchResults.hashCode();
         result = 31 * result + (score != null ? score.hashCode() : 0);
-        result = 31 * result + (hasMatches ? 1 : 0);
         return result;
     }
 }
