@@ -16,7 +16,7 @@ public class Options {
     // available only from within the package
     SearchFunctionFactory searchFunction;
     SortFunction sortFunction;
-    Boolean verbose;
+    Logger logger;
 
     // available from outside
     public Boolean caseSensitive;
@@ -30,10 +30,10 @@ public class Options {
     public Integer distance;
     public Integer maxPatternLength;
 
-    public Options(SearchFunctionFactory searchFunction, SortFunction sortFunction, Boolean verbose, Boolean caseSensitive, Integer minimumCharLength, Boolean shouldSort, Boolean tokenize, Boolean matchAllTokens, Boolean findAllMatches, Integer location, Float threshold, Integer distance, Integer maxPatternLength) {
+    public Options(SearchFunctionFactory searchFunction, SortFunction sortFunction, Logger logger, Boolean caseSensitive, Integer minimumCharLength, Boolean shouldSort, Boolean tokenize, Boolean matchAllTokens, Boolean findAllMatches, Integer location, Float threshold, Integer distance, Integer maxPatternLength) {
         this.searchFunction = searchFunction;
         this.sortFunction = sortFunction;
-        this.verbose = verbose;
+        this.logger = logger;
         this.caseSensitive = caseSensitive;
         this.minimumCharLength = minimumCharLength;
         this.shouldSort = shouldSort;
@@ -57,7 +57,7 @@ public class Options {
     public Options mergeWith(Options other) {
         searchFunction = searchFunction != null ? searchFunction : other.searchFunction;
         sortFunction = sortFunction != null ? sortFunction : other.sortFunction;
-        verbose = verbose != null ? verbose : other.verbose;
+        logger = logger != null ? logger : other.logger;
         caseSensitive = caseSensitive != null ? caseSensitive : other.caseSensitive;
         minimumCharLength = minimumCharLength != null ? minimumCharLength : other.minimumCharLength;
         shouldSort = shouldSort != null ? shouldSort : other.shouldSort;
@@ -76,7 +76,7 @@ public class Options {
         return "Options{"
                 + "searchFunction=" + searchFunction + ", "
                 + "sortFunction=" + sortFunction + ", "
-                + "verbose=" + verbose + ", "
+                + "verbose=" + logger + ", "
                 + "caseSensitive=" + caseSensitive + ", "
                 + "minimumCharLength=" + minimumCharLength + ", "
                 + "shouldSort=" + shouldSort + ", "
@@ -99,7 +99,7 @@ public class Options {
             Options that = (Options) o;
             return ((this.searchFunction == null) ? (that.searchFunction == null) : this.searchFunction.equals(that.searchFunction))
                     && ((this.sortFunction == null) ? (that.sortFunction == null) : this.sortFunction.equals(that.sortFunction))
-                    && ((this.verbose == null) ? (that.verbose == null) : this.verbose.equals(that.verbose))
+                    && ((this.logger == null) ? (that.logger == null) : this.logger.equals(that.logger))
                     && ((this.caseSensitive == null) ? (that.caseSensitive == null) : this.caseSensitive.equals(that.caseSensitive))
                     && ((this.minimumCharLength == null) ? (that.minimumCharLength == null) : this.minimumCharLength.equals(that.minimumCharLength))
                     && ((this.shouldSort == null) ? (that.shouldSort == null) : this.shouldSort.equals(that.shouldSort))
@@ -122,7 +122,7 @@ public class Options {
         h *= 1000003;
         h ^= (sortFunction == null) ? 0 : this.sortFunction.hashCode();
         h *= 1000003;
-        h ^= (verbose == null) ? 0 : this.verbose.hashCode();
+        h ^= (logger == null) ? 0 : this.logger.hashCode();
         h *= 1000003;
         h ^= (caseSensitive == null) ? 0 : this.caseSensitive.hashCode();
         h *= 1000003;
@@ -149,7 +149,6 @@ public class Options {
     public static final class Builder {
         private SearchFunctionFactory searchFunction;
         private SortFunction sortFunction;
-        private Boolean verbose;
         private Boolean caseSensitive;
         private Integer minimumCharLength;
         private Boolean shouldSort;
@@ -160,6 +159,7 @@ public class Options {
         private Float threshold;
         private Integer distance;
         private Integer maxPatternLength;
+        private Logger logger;
 
         public Builder() {
         }
@@ -167,7 +167,7 @@ public class Options {
         public Builder(Options source) {
             this.searchFunction = source.searchFunction;
             this.sortFunction = source.sortFunction;
-            this.verbose = source.verbose;
+            this.logger = source.logger;
             this.caseSensitive = source.caseSensitive;
             this.minimumCharLength = source.minimumCharLength;
             this.shouldSort = source.shouldSort;
@@ -187,11 +187,6 @@ public class Options {
 
         public Builder sortFunction(@Nullable SortFunction sortFunction) {
             this.sortFunction = sortFunction;
-            return this;
-        }
-
-        public Builder verbose(@Nullable Boolean verbose) {
-            this.verbose = verbose;
             return this;
         }
 
@@ -245,11 +240,16 @@ public class Options {
             return this;
         }
 
+        public Builder logger(@Nullable Logger logger) {
+            this.logger = logger;
+            return this;
+        }
+
         public Options build() {
             return new Options(
                     this.searchFunction,
                     this.sortFunction,
-                    this.verbose,
+                    this.logger,
                     this.caseSensitive,
                     this.minimumCharLength,
                     this.shouldSort,
@@ -265,6 +265,10 @@ public class Options {
 
     public interface SearchFunctionFactory {
         SearchFunction getSearchFunction(String pattern, Options options);
+    }
+
+    public interface Logger {
+        void log(String stringToFormat, Object... args);
     }
 
     static abstract class SortFunction implements Comparator<ScoredObject<?>> {

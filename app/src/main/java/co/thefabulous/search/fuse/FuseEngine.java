@@ -35,18 +35,23 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                     return b.compareTo(a);
                 }
             })
-            .verbose(false)
             .tokenize(false)
             .matchAllTokens(false)
             .minimumCharLength(1)
             .threshold(0.6f)
             .findAllMatches(false)
+            .logger(new Options.Logger() {
+                @Override
+                public void log(String stringToFormat, Object... args) {
+                    System.out.println(String.format(stringToFormat, args));
+                }
+            })
             .build();
 
     private final Options options;
-    private Collection<T> dataSet;
     List<SearchFunction> tokenSearchers;
     SearchFunction fullSearcher;
+    private Collection<T> dataSet;
 
     public FuseEngine(Options options) {
         checkArgument(options != null, "options cannot be null");
@@ -54,8 +59,8 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     }
 
     private void log(String stringToFormat, Object... args) {
-        if (options.verbose) {
-            System.out.println(String.format(stringToFormat, args));
+        if (options.logger != null) {
+            options.logger.log(stringToFormat, args);
         }
     }
 
