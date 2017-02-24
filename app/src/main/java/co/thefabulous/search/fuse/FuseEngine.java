@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import co.thefabulous.search.bitap.BitapFactory;
+import co.thefabulous.search.bitap.WordTokenizer;
 import co.thefabulous.search.fuse.data.Indexable;
 import co.thefabulous.search.fuse.data.ScoredObject;
 
@@ -29,19 +30,17 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
 
     public static final Options DEFAULT_OPTIONS = Options.builder()
             .caseSensitive(false)
-            .include(new ArrayList<String>())
             .shouldSort(true)
             .searchFunction(new BitapFactory())
             .sortFunction(new Options.SortFunction() {
                 @Override
                 int sort(ScoredObject<?> a, ScoredObject<?> b) {
-                    return a.compareTo(b);
+                    return b.compareTo(a);
                 }
             })
             .verbose(false)
             .tokenize(false)
             .matchAllTokens(false)
-            .tokenSeparator("\\s+")
             .minimumCharLength(1)
             .findAllMatches(false)
             .build();
@@ -62,8 +61,10 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     }
 
     private void mergeOptionsWithDefault(Options options) {
+        options.searchFunction = options.searchFunction != null ? options.searchFunction : DEFAULT_OPTIONS.searchFunction;
+        options.sortFunction = options.sortFunction != null ? options.sortFunction : DEFAULT_OPTIONS.sortFunction;
+        options.verbose = options.verbose != null ? options.verbose : DEFAULT_OPTIONS.verbose;
         options.caseSensitive = options.caseSensitive != null ? options.caseSensitive : DEFAULT_OPTIONS.caseSensitive;
-        options.include = options.include != null ? options.include : DEFAULT_OPTIONS.include;
         options.minimumCharLength = options.minimumCharLength != null ? options.minimumCharLength : DEFAULT_OPTIONS.minimumCharLength;
         options.shouldSort = options.shouldSort != null ? options.shouldSort : DEFAULT_OPTIONS.shouldSort;
         options.tokenize = options.tokenize != null ? options.tokenize : DEFAULT_OPTIONS.tokenize;
@@ -105,7 +106,8 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     void prepareSearchers(String pattern) {
         tokenSearchers = new ArrayList<>();
         if (options.tokenize) {
-            final String[] tokens = pattern.split(options.tokenSeparator);
+            WordTokenizer tokenizer = new WordTokenizer();
+            final Collection<String> tokens = tokenizer.apply(pattern);
             for (String token : tokens) {
                 tokenSearchers.add(options.searchFunction.getSearchFunction(token, options));
             }
@@ -135,7 +137,8 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         int numTextMatches = 0;
         Double averageScore = null;
 
-        final String[] words = text.split(options.tokenSeparator);
+        WordTokenizer tokenizer = new WordTokenizer();
+        final Collection<String> words = tokenizer.apply(text);
         if (this.options.tokenize) {
             for (SearchFunction tokenSearcher : tokenSearchers) {
                 log("Pattern: %s", tokenSearcher.pattern());

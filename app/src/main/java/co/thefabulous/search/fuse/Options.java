@@ -3,7 +3,6 @@ package co.thefabulous.search.fuse;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -16,15 +15,12 @@ import co.thefabulous.search.fuse.data.ScoredObject;
 public class Options {
 
     // available only from within the package
-    String id;
     SearchFunctionFactory searchFunction;
     SortFunction sortFunction;
     Boolean verbose;
-    String tokenSeparator;
 
     // available from outside
     public Boolean caseSensitive;
-    public List<String> include;
     public Integer minimumCharLength;
     public Boolean shouldSort;
     public Boolean tokenize;
@@ -35,13 +31,11 @@ public class Options {
     public Integer distance;
     public Integer maxPatternLength;
 
-    public Options( SearchFunctionFactory searchFunction, SortFunction sortFunction, Boolean verbose, String tokenSeparator, Boolean caseSensitive, List<String> include, Integer minimumCharLength, Boolean shouldSort, Boolean tokenize, Boolean matchAllTokens, Boolean findAllMatches, Integer location, Float threshold, Integer distance, Integer maxPatternLength) {
+    public Options(SearchFunctionFactory searchFunction, SortFunction sortFunction, Boolean verbose, Boolean caseSensitive, Integer minimumCharLength, Boolean shouldSort, Boolean tokenize, Boolean matchAllTokens, Boolean findAllMatches, Integer location, Float threshold, Integer distance, Integer maxPatternLength) {
         this.searchFunction = searchFunction;
         this.sortFunction = sortFunction;
         this.verbose = verbose;
-        this.tokenSeparator = tokenSeparator;
         this.caseSensitive = caseSensitive;
-        this.include = include;
         this.minimumCharLength = minimumCharLength;
         this.shouldSort = shouldSort;
         this.tokenize = tokenize;
@@ -64,13 +58,10 @@ public class Options {
     @Override
     public String toString() {
         return "Options{"
-                + "id=" + id + ", "
                 + "searchFunction=" + searchFunction + ", "
                 + "sortFunction=" + sortFunction + ", "
                 + "verbose=" + verbose + ", "
-                + "tokenSeparator=" + tokenSeparator + ", "
                 + "caseSensitive=" + caseSensitive + ", "
-                + "include=" + include + ", "
                 + "minimumCharLength=" + minimumCharLength + ", "
                 + "shouldSort=" + shouldSort + ", "
                 + "tokenize=" + tokenize + ", "
@@ -90,13 +81,10 @@ public class Options {
         }
         if (o instanceof Options) {
             Options that = (Options) o;
-            return ((this.id == null) ? (that.id == null) : this.id.equals(that.id))
-                    && ((this.searchFunction == null) ? (that.searchFunction == null) : this.searchFunction.equals(that.searchFunction))
+            return ((this.searchFunction == null) ? (that.searchFunction == null) : this.searchFunction.equals(that.searchFunction))
                     && ((this.sortFunction == null) ? (that.sortFunction == null) : this.sortFunction.equals(that.sortFunction))
                     && ((this.verbose == null) ? (that.verbose == null) : this.verbose.equals(that.verbose))
-                    && ((this.tokenSeparator == null) ? (that.tokenSeparator == null) : this.tokenSeparator.equals(that.tokenSeparator))
                     && ((this.caseSensitive == null) ? (that.caseSensitive == null) : this.caseSensitive.equals(that.caseSensitive))
-                    && ((this.include == null) ? (that.include == null) : this.include.equals(that.include))
                     && ((this.minimumCharLength == null) ? (that.minimumCharLength == null) : this.minimumCharLength.equals(that.minimumCharLength))
                     && ((this.shouldSort == null) ? (that.shouldSort == null) : this.shouldSort.equals(that.shouldSort))
                     && ((this.tokenize == null) ? (that.tokenize == null) : this.tokenize.equals(that.tokenize))
@@ -114,19 +102,13 @@ public class Options {
     public int hashCode() {
         int h = 1;
         h *= 1000003;
-        h ^= (id == null) ? 0 : this.id.hashCode();
-        h *= 1000003;
         h ^= (searchFunction == null) ? 0 : this.searchFunction.hashCode();
         h *= 1000003;
         h ^= (sortFunction == null) ? 0 : this.sortFunction.hashCode();
         h *= 1000003;
         h ^= (verbose == null) ? 0 : this.verbose.hashCode();
         h *= 1000003;
-        h ^= (tokenSeparator == null) ? 0 : this.tokenSeparator.hashCode();
-        h *= 1000003;
         h ^= (caseSensitive == null) ? 0 : this.caseSensitive.hashCode();
-        h *= 1000003;
-        h ^= (include == null) ? 0 : this.include.hashCode();
         h *= 1000003;
         h ^= (minimumCharLength == null) ? 0 : this.minimumCharLength.hashCode();
         h *= 1000003;
@@ -152,9 +134,7 @@ public class Options {
         private SearchFunctionFactory searchFunction;
         private SortFunction sortFunction;
         private Boolean verbose;
-        private String tokenSeparator;
         private Boolean caseSensitive;
-        private List<String> include;
         private Integer minimumCharLength;
         private Boolean shouldSort;
         private Boolean tokenize;
@@ -172,9 +152,7 @@ public class Options {
             this.searchFunction = source.searchFunction;
             this.sortFunction = source.sortFunction;
             this.verbose = source.verbose;
-            this.tokenSeparator = source.tokenSeparator;
             this.caseSensitive = source.caseSensitive;
-            this.include = new ArrayList<>(source.include);
             this.minimumCharLength = source.minimumCharLength;
             this.shouldSort = source.shouldSort;
             this.tokenize = source.tokenize;
@@ -201,18 +179,8 @@ public class Options {
             return this;
         }
 
-        public Builder tokenSeparator(@Nullable String tokenSeparator) {
-            this.tokenSeparator = tokenSeparator;
-            return this;
-        }
-
         public Builder caseSensitive(@Nullable Boolean caseSensitive) {
             this.caseSensitive = caseSensitive;
-            return this;
-        }
-
-        public Builder include(@Nullable List<String> include) {
-            this.include = include;
             return this;
         }
 
@@ -266,9 +234,7 @@ public class Options {
                     this.searchFunction,
                     this.sortFunction,
                     this.verbose,
-                    this.tokenSeparator,
                     this.caseSensitive,
-                    this.include,
                     this.minimumCharLength,
                     this.shouldSort,
                     this.tokenize,
