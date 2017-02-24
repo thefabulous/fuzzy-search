@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import co.thefabulous.search.fuse.data.ScoredObject;
+
 /**
  * Created by Bartosz Lipinski
  * 23.02.2017
@@ -311,12 +313,12 @@ public class Options {
         SearchFunction getSearchFunction(String pattern, Options options);
     }
 
-    static abstract class SortFunction implements Comparator<FuseEngine.IndexableSearchResult> {
-        abstract int sort(FuseEngine.IndexableSearchResult a, FuseEngine.IndexableSearchResult b);
+    static abstract class SortFunction implements Comparator<ScoredObject<?>> {
+        abstract int sort(ScoredObject<?> a, ScoredObject<?> b);
 
         @Override
-        public int compare(FuseEngine.IndexableSearchResult a, FuseEngine.IndexableSearchResult b) {
-            return sort(a, b);
+        public int compare(ScoredObject<?> o1, ScoredObject<?> o2) {
+            return sort(o1, o2);
         }
     }
 }

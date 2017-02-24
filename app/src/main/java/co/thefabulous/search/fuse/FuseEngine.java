@@ -25,7 +25,7 @@ import static co.thefabulous.search.util.Precondition.checkArgument;
  * Created by Bartosz Lipinski
  * 23.02.2017
  */
-public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implements Engine<T, P> {
+public class FuseEngine<T extends Indexable> implements Engine<T> {
 
     public static final Options DEFAULT_OPTIONS = Options.builder()
             .caseSensitive(false)
@@ -34,8 +34,8 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
             .searchFunction(new BitapFactory())
             .sortFunction(new Options.SortFunction() {
                 @Override
-                int sort(IndexableSearchResult a, IndexableSearchResult b) {
-                    return Double.compare(a.score, b.score);
+                int sort(ScoredObject<?> a, ScoredObject<?> b) {
+                    return a.compareTo(b);
                 }
             })
             .keys(new ArrayList<String>())
@@ -51,9 +51,9 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
     private final Options options;
     @VisibleForTesting List<Options.SearchFunction> tokenSearchers;
     @VisibleForTesting SearchFunction fullSearcher;
-    @VisibleForTesting List<IndexableSearchResult<T>> results;
-    @VisibleForTesting Map<Integer, IndexableSearchResult<T>> resultMap;
     private Collection<T> dataSet;
+    @VisibleForTesting List<ScoredObject<T>> results;
+    @VisibleForTesting Map<Integer, ScoredObject<T>> resultMap;
 
     public FuseEngine(@NonNull Options options) {
         //noinspection ConstantConditions
@@ -80,7 +80,7 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
     }
 
     @Override
-    public List<P> search(String pattern) {
+    public List<ScoredObject<T>> search(String pattern) {
         log("\nSearch term: %s\n", pattern);
 
         results = new ArrayList<>();
@@ -90,7 +90,7 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
         startSearch();
         computeScore();
         sort();
-        return format();
+        return results;
     }
 
     @VisibleForTesting
@@ -110,14 +110,14 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
         for (T t : dataSet) {
             final List<String> fields = t.getFields();
             for (int j = 0; j < fields.size(); j++) {
-                analyze(fields.get(j), t, i);
+                analyze(fields.get(j), t, i, j);
             }
             i++;
         }
     }
 
     @VisibleForTesting
-    void analyze(String text, T entity, int index) {
+    void analyze(String text, T indexable, int indexableIndex, int fieldIndex) {
         if (TextUtils.isEmpty(text)) {
             return;
         }
@@ -185,7 +185,7 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
         // If a match is found, add the item to <rawResults>, including its score
         if ((exists || mainSearchResult.isMatch()) && checkTextMatches) {
             // Check if the item already exists in our results
-            IndexableSearchResult indexableSearchResult = resultMap.get(index);
+            ScoredObject<T> scoredObject = resultMap.get(indexableIndex);
 
             final SearchResult searchResult = new SearchResult() {
                 @Override
@@ -203,15 +203,16 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
                     return mainSearchResult.matchedIndices();
                 }
             };
-            if (indexableSearchResult != null) {
+            if (scoredObject != null) {
                 // Use the lowest score
                 // existingResult.score, bitapResult.score
-                indexableSearchResult.fieldsResults.add(searchResult);
+                scoredObject.addSearchResult(fieldIndex, searchResult);
             } else {
                 // Add it to the raw result list
-                indexableSearchResult = new IndexableSearchResult(entity, searchResult);
-                resultMap.put(index, indexableSearchResult);
-                results.add(indexableSearchResult);
+                scoredObject = new ScoredObject<>(indexable);
+                scoredObject.addSearchResult(fieldIndex, searchResult);
+                resultMap.put(indexableIndex, scoredObject);
+                results.add(scoredObject);
             }
         }
     }
@@ -221,14 +222,11 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
 
         for (int i = 0, size = results.size(); i < size; i++) {
             double totalScore = 0;
-            List<SearchResult> output = results.get(i).fieldsResults;
-            int scoreLen = output.size();
-
-            for (int j = 0; j < scoreLen; j++) {
-                totalScore += output.get(j).score();
+            Map<Integer, SearchResult> output = results.get(i).getFieldsSearchResults();
+            for (SearchResult value : output.values()) {
+                totalScore += value.score();
             }
-
-            results.get(i).score = totalScore / scoreLen;
+            results.get(i).setScore(totalScore / (double) output.size());
 //            log(results.get(i));
         }
     }
@@ -237,23 +235,6 @@ public class FuseEngine<T extends Indexable, P extends ScoredObject<T>> implemen
         if (options.shouldSort) {
             log("\n\nSorting");
             Collections.sort(results, options.sortFunction);
-        }
-    }
-
-    private List<P> format() {
-        // TODO: 23.02.2017
-        return null;
-    }
-
-    public static class IndexableSearchResult<T> {
-        public double score;
-        T entity;
-        List<SearchResult> fieldsResults;
-
-        public IndexableSearchResult(T entity, SearchResult result) {
-            this.entity = entity;
-            this.fieldsResults = new ArrayList<>();
-            this.fieldsResults.add(result);
         }
     }
 }

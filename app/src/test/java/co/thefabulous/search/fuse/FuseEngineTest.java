@@ -13,7 +13,6 @@ import java.util.List;
 import co.thefabulous.search.Habit;
 import co.thefabulous.search.bitap.BitapSearcher;
 import co.thefabulous.search.fuse.data.Indexable;
-import co.thefabulous.search.fuse.data.ScoredObject;
 
 import static co.thefabulous.search.fuse.FuseEngine.DEFAULT_OPTIONS;
 import static com.google.common.truth.Truth.assertThat;
@@ -27,7 +26,7 @@ public class FuseEngineTest {
 
     @Test
     public void prepareSearchers_whenTokenize_setsProperSearchers() throws Exception {
-        FuseEngine<Habit, ScoredObject<Habit>> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
+        FuseEngine<Habit> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
                 .tokenize(true).caseSensitive(true).build());
 
         assertThat(fuseEngine.tokenSearchers).isNull();
@@ -43,7 +42,7 @@ public class FuseEngineTest {
 
     @Test
     public void whenNotTokenizing_analyze_storesResults_inMap_and_inList() {
-        FuseEngine<Habit, ScoredObject<Habit>> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
+        FuseEngine<Habit> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
                 .tokenize(true).build());
 
         fuseEngine.results = new ArrayList<>();
@@ -57,14 +56,14 @@ public class FuseEngineTest {
             }
         };
         int indexableIndex = 0;
-        fuseEngine.analyze(indexable.getFields().get(0), null, indexableIndex);
-        fuseEngine.analyze(indexable.getFields().get(1), null, indexableIndex);
+        fuseEngine.analyze(indexable.getFields().get(0), null, indexableIndex, 0);
+        fuseEngine.analyze(indexable.getFields().get(1), null, indexableIndex, 1);
 
         assertThat(fuseEngine.results.size()).isEqualTo(1);
-        assertThat(fuseEngine.results.get(0).fieldsResults.size()).isEqualTo(2);
+        assertThat(fuseEngine.results.get(0).getFieldsSearchResults().size()).isEqualTo(2);
 
         assertThat(fuseEngine.resultMap.size()).isEqualTo(1);
-        assertThat(fuseEngine.resultMap.get(0).fieldsResults.size()).isEqualTo(2);
+        assertThat(fuseEngine.resultMap.get(0).getFieldsSearchResults().size()).isEqualTo(2);
     }
 
     @Test
@@ -75,7 +74,7 @@ public class FuseEngineTest {
         BitapSearcher bitapSearcher = new BitapSearcher(pattern, FuseEngine.DEFAULT_OPTIONS);
         Options.SearchResult searchResult = bitapSearcher.search(text, false);
 
-        FuseEngine<Habit, ScoredObject<Habit>> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
+        FuseEngine<Habit> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
                 .tokenize(false).build());
 
         fuseEngine.results = new ArrayList<>();
@@ -90,13 +89,12 @@ public class FuseEngineTest {
         };
         int indexableIndex = 0;
 
-        fuseEngine.analyze(indexable.getFields().get(0), null, indexableIndex);
+        fuseEngine.analyze(indexable.getFields().get(0), null, indexableIndex,0);
         fuseEngine.computeScore();
 
         assertThat(fuseEngine.results.size()).isEqualTo(1);
-        assertThat(fuseEngine.results.get(0).fieldsResults.size()).isEqualTo(1);
+        assertThat(fuseEngine.results.get(0).getFieldsSearchResults().size()).isEqualTo(1);
 
-        assertThat(fuseEngine.results.get(0).score).isEqualTo(searchResult.score());
+        assertThat(fuseEngine.results.get(0).getScore()).isEqualTo(searchResult.score());
     }
-
 }

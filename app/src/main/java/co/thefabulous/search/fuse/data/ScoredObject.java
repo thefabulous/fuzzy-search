@@ -1,7 +1,8 @@
 package co.thefabulous.search.fuse.data;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.support.v4.util.ArrayMap;
+
+import java.util.Map;
 import java.util.Objects;
 
 import co.thefabulous.search.fuse.Options;
@@ -13,13 +14,13 @@ import static co.thefabulous.search.util.Precondition.checkPointer;
  */
 public class ScoredObject<T extends Indexable> implements Comparable<ScoredObject> {
     private final T object;
-    private final List<Options.SearchResult> searchResults;
+    private final Map<Integer, Options.SearchResult> fieldsSearchResults; //keys are indices of fields
     private Double score;
     private boolean hasMatches;
 
     public ScoredObject(T object) {
         this.object = object;
-        searchResults = new ArrayList<>();
+        fieldsSearchResults = new ArrayMap<>();
     }
 
     public boolean hasMatches() {
@@ -31,12 +32,12 @@ public class ScoredObject<T extends Indexable> implements Comparable<ScoredObjec
         return this;
     }
 
-    public List<Options.SearchResult> getSearchResults() {
-        return searchResults;
+    public Map<Integer, Options.SearchResult> getFieldsSearchResults() {
+        return fieldsSearchResults;
     }
 
-    public ScoredObject addSerachResult(Options.SearchResult searchResult, int index) {
-        searchResults.add(index, searchResult);
+    public ScoredObject addSearchResult(int fieldIndex, Options.SearchResult searchResult) {
+        fieldsSearchResults.put(fieldIndex, searchResult);
         return this;
     }
 
@@ -70,7 +71,7 @@ public class ScoredObject<T extends Indexable> implements Comparable<ScoredObjec
         return Objects.equals(object, other.object)
                 && Objects.equals(hasMatches, other.hasMatches)
                 && Objects.equals(score, other.score)
-                && Objects.equals(searchResults, other.searchResults);
+                && Objects.equals(fieldsSearchResults, other.fieldsSearchResults);
     }
 
     @Override
@@ -86,6 +87,6 @@ public class ScoredObject<T extends Indexable> implements Comparable<ScoredObjec
 
     @Override
     public int hashCode() {
-        return Objects.hash(object, hasMatches, score, searchResults);
+        return Objects.hash(object, hasMatches, score, fieldsSearchResults);
     }
 }
