@@ -1,4 +1,4 @@
-package co.thefabulous.search.search.text.analyze;
+package co.thefabulous.search.bitap;
 
 import java.util.Arrays;
 import java.util.Collection;

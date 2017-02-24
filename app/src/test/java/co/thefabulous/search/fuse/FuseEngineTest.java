@@ -11,7 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import co.thefabulous.search.Habit;
-import co.thefabulous.search.search.data.Indexable;
+import co.thefabulous.search.fuse.data.Indexable;
+import co.thefabulous.search.fuse.data.ScoredObject;
 
 import static co.thefabulous.search.fuse.FuseEngine.DEFAULT_OPTIONS;
 import static com.google.common.truth.Truth.assertThat;
@@ -25,7 +26,7 @@ public class FuseEngineTest {
 
     @Test
     public void prepareSearchers_whenTokenize_setsProperSearchers() throws Exception {
-        FuseEngine<Habit> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
+        FuseEngine<Habit, ScoredObject<Habit>> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
                 .tokenize(true).caseSensitive(true).build());
 
         assertThat(fuseEngine.tokenSearchers).isNull();
@@ -41,7 +42,7 @@ public class FuseEngineTest {
 
     @Test
     public void whenNotTokenizing_analyze_storesResults_inMap_and_inList() {
-        FuseEngine<Habit> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
+        FuseEngine<Habit, ScoredObject<Habit>> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
                 .tokenize(true).build());
 
         fuseEngine.results = new ArrayList<>();

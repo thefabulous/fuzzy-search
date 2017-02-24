@@ -1,4 +1,4 @@
-package co.thefabulous.search.search.text.analyze.tokenize;
+package co.thefabulous.search.bitap;
 
 
 import java.text.BreakIterator;
@@ -6,9 +6,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import co.thefabulous.search.search.text.analyze.Analyzer;
 
-import static co.thefabulous.search.search.common.Precondition.checkPointer;
+import static co.thefabulous.search.util.Precondition.checkPointer;
 
 /**
  * Break text into words.
