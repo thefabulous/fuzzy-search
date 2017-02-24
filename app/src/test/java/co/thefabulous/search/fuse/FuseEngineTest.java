@@ -9,14 +9,18 @@ import org.junit.runners.JUnit4;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import co.thefabulous.search.Habit;
 import co.thefabulous.search.bitap.BitapSearcher;
 import co.thefabulous.search.engine.Indexable;
+import co.thefabulous.search.engine.ScoredObject;
 import co.thefabulous.search.engine.SearchResult;
 
 import static co.thefabulous.search.fuse.FuseEngine.DEFAULT_OPTIONS;
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -47,12 +51,11 @@ public class FuseEngineTest {
     }
 
     @Test
-    public void whenNotTokenizing_analyze_storesResults_inMap_and_inList() {
+    public void whenNotTokenizing_analyze_storesResults_inMap() {
         FuseEngine<Habit> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
                 .tokenize(true).build());
 
-        fuseEngine.results = new ArrayList<>();
-        fuseEngine.resultMap = new ArrayMap<>();
+        Map<Integer, ScoredObject<Habit>> resultMap = new ArrayMap<>();
         fuseEngine.prepareSearchers("br");
 
         final Indexable indexable = new Indexable() {
@@ -62,14 +65,11 @@ public class FuseEngineTest {
             }
         };
         int indexableIndex = 0;
-        fuseEngine.analyze(indexable.getFields().get(0), null, indexableIndex, 0);
-        fuseEngine.analyze(indexable.getFields().get(1), null, indexableIndex, 1);
+        fuseEngine.analyze(resultMap, indexable.getFields().get(0), null, indexableIndex, 0);
+        fuseEngine.analyze(resultMap, indexable.getFields().get(1), null, indexableIndex, 1);
 
-        assertThat(fuseEngine.results.size()).isEqualTo(1);
-        assertThat(fuseEngine.results.get(0).getFieldsSearchResults().size()).isEqualTo(2);
-
-        assertThat(fuseEngine.resultMap.size()).isEqualTo(1);
-        assertThat(fuseEngine.resultMap.get(0).getFieldsSearchResults().size()).isEqualTo(2);
+        assertThat(resultMap.size()).isEqualTo(1);
+        assertThat(resultMap.get(0).getFieldsSearchResults().size()).isEqualTo(2);
     }
 
     @Test
@@ -83,8 +83,7 @@ public class FuseEngineTest {
         FuseEngine<Habit> fuseEngine = new FuseEngine<>(Options.builder(DEFAULT_OPTIONS)
                 .tokenize(false).build());
 
-        fuseEngine.results = new ArrayList<>();
-        fuseEngine.resultMap = new ArrayMap<>();
+        Map<Integer, ScoredObject<Habit>> resultMap = new ArrayMap<>();
         fuseEngine.prepareSearchers(pattern);
 
         final Indexable indexable = new Indexable() {
@@ -95,13 +94,15 @@ public class FuseEngineTest {
         };
         int indexableIndex = 0;
 
-        fuseEngine.analyze(indexable.getFields().get(0), null, indexableIndex, 0);
-        fuseEngine.computeScore();
+        fuseEngine.analyze(resultMap, indexable.getFields().get(0), null, indexableIndex, 0);
+        fuseEngine.computeScore(resultMap);
 
-        assertThat(fuseEngine.results.size()).isEqualTo(1);
-        assertThat(fuseEngine.results.get(0).getFieldsSearchResults().size()).isEqualTo(1);
+        List<ScoredObject<Habit>> results = new ArrayList<>(resultMap.values());
 
-        assertThat(fuseEngine.results.get(0).getScore()).isEqualTo(searchResult.score());
+        assertThat(results.size()).isEqualTo(1);
+        assertThat(results.get(0).getFieldsSearchResults().size()).isEqualTo(1);
+
+        assertThat(results.get(0).getScore()).isEqualTo(searchResult.score());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -153,19 +154,26 @@ public class FuseEngineTest {
         // verify all major calls
         verify(fuseEngine, times(1)).search(searched);
         verify(fuseEngine, times(1)).prepareSearchers(searched);
-        verify(fuseEngine, times(1)).startSearch();
-        verify(fuseEngine, times(1)).computeScore();
-        verify(fuseEngine, times(1)).sort();
+        //noinspection unchecked
+        verify(fuseEngine, times(1)).startSearch(any(Map.class));
+        //noinspection unchecked
+        verify(fuseEngine, times(1)).computeScore(any(Map.class));
+        //noinspection unchecked
+        verify(fuseEngine, times(1)).sort(any(List.class));
 
         // verify calls specific to startSearch
+        //noinspection unchecked
         verify(fuseEngine, times(1))
-                .analyze("Indexable 1 -> Test field 1", indexable1, 0, 0);
+                .analyze(any(Map.class), eq("Indexable 1 -> Test field 1"), eq(indexable1), eq(0), eq(0));
+        //noinspection unchecked
         verify(fuseEngine, times(1))
-                .analyze("Indexable 1 -> Test field 2", indexable1, 0, 1);
+                .analyze(any(Map.class), eq("Indexable 1 -> Test field 2"), eq(indexable1), eq(0), eq(1));
+        //noinspection unchecked
         verify(fuseEngine, times(1))
-                .analyze("Indexable 1 -> Test field 3", indexable1, 0, 2);
+                .analyze(any(Map.class), eq("Indexable 1 -> Test field 3"), eq(indexable1), eq(0), eq(2));
+        //noinspection unchecked
         verify(fuseEngine, times(1))
-                .analyze("Indexable 2 -> Test field 1", indexable2, 1, 0);
+                .analyze(any(Map.class), eq("Indexable 2 -> Test field 1"), eq(indexable2), eq(1), eq(0));
         verifyNoMoreInteractions(fuseEngine);
     }
 }

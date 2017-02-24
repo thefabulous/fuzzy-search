@@ -47,8 +47,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
     private Collection<T> dataSet;
     List<SearchFunction> tokenSearchers;
     SearchFunction fullSearcher;
-    List<ScoredObject<T>> results;
-    Map<Integer, ScoredObject<T>> resultMap;
 
     public FuseEngine(Options options) {
         checkArgument(options != null, "options cannot be null");
@@ -72,14 +70,12 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
 
         checkState(dataSet != null, "Be sure to set the DataSet before running a search.");
 
-        results = new ArrayList<>();
-        resultMap = new HashMap<>();
+        Map<Integer, ScoredObject<T>> resultMap = new HashMap<>();
 
         prepareSearchers(pattern);
-        startSearch();
-        computeScore();
-        sort();
-        return results;
+        startSearch(resultMap);
+        computeScore(resultMap);
+        return sort(new ArrayList<>(resultMap.values()));
     }
 
     void prepareSearchers(String pattern) {
@@ -94,18 +90,18 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
         fullSearcher = options.searchFunction.getSearchFunction(pattern, options);
     }
 
-    void startSearch() {
+    void startSearch(Map<Integer, ScoredObject<T>> resultMap) {
         int i = 0;
         for (T t : dataSet) {
             final List<String> fields = t.getFields();
             for (int j = 0; j < fields.size(); j++) {
-                analyze(fields.get(j), t, i, j);
+                analyze(resultMap, fields.get(j), t, i, j);
             }
             i++;
         }
     }
 
-    void analyze(String text, T indexable, int indexableIndex, int fieldIndex) {
+    void analyze(Map<Integer, ScoredObject<T>> resultMap, String text, T indexable, int indexableIndex, int fieldIndex) {
         if (text == null || text.length() == 0) {
             return;
         }
@@ -144,7 +140,6 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                 if (hasMatchInText) {
                     numTextMatches++;
                 }
-//               log("Token scores: %s", termScores); //// TODO: 23.02.2017 log this array
 
                 if (scores.isEmpty()) {
                     averageScore = 1.0;
@@ -205,28 +200,28 @@ public class FuseEngine<T extends Indexable> implements Engine<T> {
                 scoredObject = new ScoredObject<>(indexable);
                 scoredObject.addSearchResult(fieldIndex, searchResult);
                 resultMap.put(indexableIndex, scoredObject);
-                results.add(scoredObject);
             }
         }
     }
 
-    void computeScore() {
+    void computeScore(Map<Integer, ScoredObject<T>> resultMap) {
         log("\n\nComputing score:\n");
-
-        for (int i = 0, size = results.size(); i < size; i++) {
+        final Collection<ScoredObject<T>> results = resultMap.values();
+        for (ScoredObject<T> result : results) {
             double totalScore = 0;
-            Map<Integer, SearchResult> output = results.get(i).getFieldsSearchResults();
+            Map<Integer, SearchResult> output = result.getFieldsSearchResults();
             for (SearchResult value : output.values()) {
                 totalScore += value.score();
             }
-            results.get(i).setScore(totalScore / (double) output.size());
+            result.setScore(totalScore / (double) output.size());
         }
     }
 
-    void sort() {
+    List<ScoredObject<T>> sort(List<ScoredObject<T>> results) {
         if (options.shouldSort) {
             log("\n\nSorting");
             Collections.sort(results, options.sortFunction);
         }
+        return results;
     }
 }
